@@ -14,9 +14,9 @@ See `docs/` for recording + outreach kit.
 - Founders/small teams who want fewer manual copy/paste steps and fewer errors.
 - Anyone needing clean data before sharing numbers with stakeholders.
 
-If your export format is different, I can adapt the mapping and rules quickly.
+If your export format is different, I can adapt the mapping/rules quickly.
 
-If you need a new automation, I can build it from scratch (scripts, dashboards, APIs, Sheets workflows).
+If you need a new automation, I can build it end-to-end (Sheets workflows, scripts, APIs, dashboards).
 
 ## What this demo delivers
 You drop in a messy export CSV and get cleaned data, weekly summaries, and a share-ready Excel report, with an option to publish to Google Sheets tabs.
@@ -77,10 +77,15 @@ Typical real-world messiness handled in weekly exports:
 Data-quality behavior includes quarantining dropped rows into `data/processed/quarantine_bad_rows.csv` (for example: unparseable dates, missing required fields, invalid amounts, duplicates, or filtered-out rows).
 
 ## How to use it (quickstart)
-1. Generate the example export for demo/testing:
-   ```bash
-   python scripts/generate_orders_export.py
-   ```
+1. (Optional) Generate an example export:
+   - Linux/macOS:
+     ```bash
+     python scripts/generate_orders_export.py
+     ```
+   - Windows (PowerShell):
+     ```powershell
+     py .\scripts\generate_orders_export.py
+     ```
 2. Run the pipeline:
    ```bash
    python src/run.py
@@ -146,12 +151,16 @@ Notes:
 
 Preview table below shows example output format; generated results vary by your exports and date range.
 
-| week_start | week_end   | total_orders | total_revenue | average_order_value |
-|------------|------------|--------------|---------------|---------------------|
-| 2024-03-04 | 2024-03-10 | 128          | 18432.75      | 144.01              |
-| 2024-03-11 | 2024-03-17 | 141          | 20109.20      | 142.62              |
-| 2024-03-18 | 2024-03-24 | 136          | 19688.45      | 144.77              |
-| 2024-03-25 | 2024-03-31 | 149          | 21452.10      | 143.97              |
+| week       | channel  | orders | units | revenue |
+|------------|----------|--------|-------|---------|
+| 2024-W10   | Shopify  | 52     | 79    | 6342.40 |
+| 2024-W10   | Amazon   | 37     | 61    | 5188.90 |
+| 2024-W10   | Stripe   | 18     | 18    | 2145.00 |
+| 2024-W11   | Shopify  | 49     | 73    | 6024.75 |
+| 2024-W11   | Amazon   | 41     | 66    | 5579.30 |
+| 2024-W11   | WooCommerce | 22  | 35    | 2891.60 |
+| 2024-W12   | Shopify  | 55     | 82    | 6610.15 |
+| 2024-W12   | Stripe   | 20     | 20    | 2389.50 |
 
 ## Outputs
 After a successful run, the pipeline writes the following files:
@@ -161,6 +170,7 @@ After a successful run, the pipeline writes the following files:
 - `data/processed/top_products.csv`
 - `data/processed/weekly_report.xlsx` (tabs: `Summary`, `Top Products`)
 - `data/processed/quarantine_bad_rows.csv`
+- `data/processed/data_quality_report.json` (if generated)
 
 ## Publish to Google Sheets (optional)
 
