@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import argparse
+import os
 
 import pandas as pd
 
@@ -31,7 +33,7 @@ def to_numeric_currency(series: pd.Series) -> pd.Series:
     return pd.to_numeric(cleaned, errors="coerce")
 
 
-def main() -> None:
+def main(publish: bool = False) -> None:
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_csv(RAW_PATH)
@@ -166,6 +168,29 @@ def main() -> None:
         weekly_summary.to_excel(writer, sheet_name="Summary", index=False)
         top_products.to_excel(writer, sheet_name="Top Products", index=False)
 
+    if publish:
+        try:
+            from publish_google_sheets import publish_csvs
+        except ImportError as exc:
+            raise RuntimeError(
+                "Publishing requires google dependencies. Install requirements.txt."
+            ) from exc
+
+        sheet_id = publish_csvs(
+            sheet_id=os.getenv("GOOGLE_SHEET_ID"),
+            weekly_csv=WEEKLY_PATH,
+            top_csv=TOP_PRODUCTS_PATH,
+        )
+        print(f"[publish] Google Sheet ID: {sheet_id}")
+        print(f"[publish] Google Sheet URL: https://docs.google.com/spreadsheets/d/{sheet_id}")
+
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Generate weekly reports from raw orders data")
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="Publish weekly_summary.csv and top_products.csv to Google Sheets",
+    )
+    args = parser.parse_args()
+    main(publish=args.publish)

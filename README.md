@@ -47,5 +47,25 @@ After a successful run, the pipeline writes the following files:
 - `data/processed/top_products.csv`
 - `data/processed/weekly_report.xlsx` (tabs: `Summary`, `Top Products`)
 
+## Publish to Google Sheets (optional)
+
+You can optionally publish `weekly_summary.csv` and `top_products.csv` into a Google Sheet as separate tabs (`weekly_summary`, `top_products`).
+
+1. Create a Google Cloud service account and enable Google Sheets API.
+2. Download the service account JSON key to a local path (for example: `/secure/path/service-account.json`).
+3. Share the destination Google Sheet with the service account email, or allow the script to create a new sheet.
+4. Set environment variables:
+   - Required: `GOOGLE_APPLICATION_CREDENTIALS=/secure/path/service-account.json`
+   - Optional: `GOOGLE_SHEET_ID=<existing_sheet_id>` (if omitted, a new sheet is created)
+5. Run publishing:
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=/secure/path/service-account.json python src/run.py --publish
+```
+
+The command prints the Google Sheet ID and URL when publish succeeds.
+
+**Security note:** Never commit service account credential JSON files or secrets to source control. Keep credentials outside the repository.
+
 ## Next Steps
 As an optional extension, you can integrate Google Sheets API publishing to push the generated report outputs directly into a shared stakeholder workbook.
