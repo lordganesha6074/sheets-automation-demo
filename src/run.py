@@ -224,7 +224,10 @@ def main(
     counters["final_rows"] = len(df)
 
     if revenue_col is not None:
-        df["_revenue"] = df[revenue_col].fillna(df[units_col].astype(float) * df.get(price_col, 0).fillna(0) if price_col else 0)
+        units_revenue = df[units_col].astype(float)
+        price_series = df[price_col].fillna(0) if price_col else 0
+        fallback_revenue = units_revenue * price_series
+        df["_revenue"] = df[revenue_col].fillna(fallback_revenue)
     else:
         df["_revenue"] = df[units_col].astype(float) * df[price_col].fillna(0)
 
