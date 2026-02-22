@@ -1,19 +1,211 @@
-order_id,order_date,channel,product,units,price,status
-ORD-1001,2025-01-03,web,Wireless Mouse,2,24.99,paid
-ORD-1002,1/4/25,marketplace,USB-C Cable,5,9.5,paid
-ORD-1003,Jan 05 2025,web,Noise Cancelling Headphones,1,199.00,paid
-ORD-1004,2025-01-06,retail,Mechanical Keyboard,1,89.99,cancelled
-ORD-1005,1/7/25,web,Laptop Stand,3,34.50,paid
-ORD-1006,Jan 08 2025,marketplace,Webcam,2,59.99,refunded
-ORD-1007,2025-01-09,,Monitor 27in,1,229.00,paid
-ORD-1008,1/10/25,web,,4,14.25,paid
-ORD-1009,Jan 11 2025,retail,Office Chair,1,,paid
-ORD-1010,2025-01-12,marketplace,Desk Lamp,2,39.95,cancelled
-ORD-1002,2025-01-13,marketplace,USB-C Cable,5,9.5,refunded
-ORD-1004,1/14/25,retail,Mechanical Keyboard,1,89.99,paid
-ORD-1006,Jan 15 2025,marketplace,Webcam,2,59.99,paid
-ORD-1011,2025-01-16,web,External SSD 1TB,1,119.00,paid
-ORD-1012,1/17/25,retail,Ergonomic Mouse,2,49.00,refunded
-ORD-1013,Jan 18 2025,web,HDMI Adapter,6,12.00,cancelled
-ORD-1014,2025-01-19,marketplace,Portable Charger,3,29.99,paid
-ORD-1015,1/20/25,web,Standing Desk,1,349.00,paid
+order_id,order_date,channel,product,units,price,status,coupon_code,customer_note
+ORD-20001,2025-02-10,marketplace,Mechanical Keyboard,4,92.09,paid,BULK5,
+ORD-20002,2025-02-23,web,Portable Charger,1,29.08,paid,BULK5,
+ORD-20003,2025-01-11,marketplace,Monitor 27in,1,253.19,cancelled,SPRING,repeat buyer
+ORD-20004,2025-01-13,marketplace,Monitor 27in,1,257.32,paid,BULK5,repeat buyer
+ORD-20005,2025-01-18,retail,HDMI Adapter,1,13.76,paid,SAVE10,
+ORD-20006,2025-01-30,web,Laptop Stand,3,34.56,cancelled,BULK5,
+ORD-20007,02/13/2025,web,Ergonomic Mouse,1,48.12,paid,,gift
+ORD-20008,2025-02-18,web,Webcam,5,55.63,paid,BULK5,
+ORD-20009,2025-01-19,marketplace,External SSD 1TB,6,USD 120.31,paid,SPRING,gift
+ORD-20010,2025-01-22,web,Noise Cancelling Headphones,1,209.84,paid,,
+ORD-20011,2025-01-29,marketplace,Mechanical Keyboard,8,98.43,paid,,gift
+ORD-20012,2025-02-15,web,Noise Cancelling Headphones,5,200.55,paid,SPRING,repeat buyer
+ORD-20013,2025-01-22,retail,Desk Lamp,6,43.02,paid,,rush
+ORD-20014,2025-02-24,web,Ergonomic Mouse,2,45.12,paid,BULK5,repeat buyer
+ORD-20015,2025-02-23,marketplace,Noise Cancelling Headphones,3,221.60,paid,,repeat buyer
+ORD-20016,2025-01-18,affiliate,Noise Cancelling Headphones,2,225.30,paid,,repeat buyer
+ORD-20017,2025-01-26,retail,Office Chair,1,210.03,refunded,BULK5,gift
+ORD-20018,2025-01-09,web,Mechanical Keyboard,6,92.85,refunded,,repeat buyer
+ORD-20019,2025-02-24,marketplace,Noise Cancelling Headphones,1,195.21,paid,,
+ORD-20020,2025-03-08,marketplace,Mechanical Keyboard,6,97.55,paid,SPRING,rush
+ORD-20021,2025-02-03,web,Desk Lamp,3,36.95,paid,,gift
+ORD-20022,2025-02-12,web,Mechanical Keyboard,1,84.19,paid,,rush
+ORD-20023,2025-01-10,web,Desk Lamp,1,USD 37.97,paid,,repeat buyer
+ORD-20024,2025-02-05,web,Mechanical Keyboard,5,84.80,paid,SPRING,rush
+ORD-20025,2025-02-02,marketplace,Monitor 27in,3,262.52,paid,,
+ORD-20026,2025-01-31,web,HDMI Adapter,2,11.56,cancelled,SPRING,gift
+ORD-20015,2025-02-02,affiliate,Noise Cancelling Headphones,2,220.06,paid,,
+ORD-20028,not_a_date,affiliate,Ergonomic Mouse,8,46.95,cancelled,SPRING,
+ORD-20029,01/19/2025,web,Standing Desk,2,342.37,paid,SPRING,rush
+ORD-20030,2025-02-02,marketplace,HDMI Adapter,8,13.02,refunded,SAVE10,gift
+ORD-20031,2025-01-24,marketplace,Mechanical Keyboard,8,98.27,paid,,
+ORD-20032,2025-02-12,web,Office Chair,3,215.65,cancelled,,gift
+ORD-20033,2025-01-10,marketplace,External SSD 1TB,1,135.25,cancelled,,gift
+ORD-20034,2025-02-12,marketplace,External SSD 1TB,1,124.95,paid,BULK5,rush
+ORD-20035,2025-01-19,web,Ergonomic Mouse,4,52.65,paid,BULK5,
+ORD-20036,2025-01-26,marketplace,Portable Charger,8,31.47,paid,,
+ORD-20037,2025-02-09,web,Mechanical Keyboard,3,84.21,paid,SAVE10,rush
+ORD-20038,2025-00-12,web,Noise Cancelling Headphones,2,207.29,paid,,rush
+ORD-20039,2025-03-06,web,Ergonomic Mouse,1,55.11,cancelled,,gift
+ORD-20040,2025-01-23,web,Laptop Stand,3,36.77,paid,BULK5,repeat buyer
+ORD-20041,2025-02-06,web,Laptop Stand,6,35.10,cancelled,BULK5,
+ORD-20042,2025-01-06,web,Webcam,5,65.42,paid,,
+ORD-20043,2025-02-10,marketplace,Wireless Mouse,1,23.85,refunded,,rush
+ORD-20003,2025-02-12,web,Desk Lamp,1,45.01,paid,SAVE10,gift
+ORD-20045,2025-02-17,retail,USB-C Cable,2,10.87,paid,SAVE10,gift
+ORD-20046,2025-03-02,retail,Noise Cancelling Headphones,8,184.21,paid,BULK5,
+ORD-20047,2025-02-26,web,Ergonomic Mouse,6,53.95,paid,,
+ORD-20048,2025-03-02,retail,Wireless Mouse,6,25.64,paid,BULK5,gift
+ORD-20049,2025-01-20,web,Wireless Mouse,4,23.39,paid,BULK5,rush
+ORD-20050,2025-02-16,marketplace,Desk Lamp,2,45.38,refunded,,rush
+ORD-20051,2025-01-17,web,External SSD 1TB,8,121.37,paid,BULK5,
+ORD-20052,2025-02-13,web,Desk Lamp,1,37.16,cancelled,SPRING,
+ORD-20053,2025-02-08,retail,Portable Charger,3,32.22,paid,BULK5,
+ORD-20054,2025-01-10,marketplace,Ergonomic Mouse,6,46.48,paid,BULK5,repeat buyer
+ORD-20055,2025-01-25,web,Ergonomic Mouse,2,46.51,paid,SPRING,
+ORD-20056,2025-02-18,web,HDMI Adapter,6,12.55,paid,,rush
+ORD-20057,2025-01-24,marketplace,Mechanical Keyboard,2,92.41,paid,SPRING,gift
+ORD-20058,2025-02-07,retail,Office Chair,5,202.52,refunded,BULK5,repeat buyer
+ORD-20059,2025-02-17,affiliate,Ergonomic Mouse,3,47.73,paid,BULK5,gift
+ORD-20060,bad-date,affiliate,Mechanical Keyboard,1,100.38,paid,,
+ORD-20061,2025-02-01,web,Ergonomic Mouse,3,49.58,paid,SAVE10,
+ORD-20062,2025-03-04,retail,Portable Charger,6,29.10,cancelled,,
+ORD-20063,01/09/2025,marketplace,Desk Lamp,1,42.89,cancelled,,repeat buyer
+ORD-20064,2025-01-26,retail,Portable Charger,6,31.07,paid,,
+ORD-20065,2025-03-04,web,Noise Cancelling Headphones,4,194.40,paid,BULK5,repeat buyer
+ORD-20066,2025-02-06,retail,Ergonomic Mouse,1,47.72,paid,BULK5,rush
+ORD-20067,2025-03-04,web,Desk Lamp,1,38.16,paid,SAVE10,
+ORD-20068,2025-02-01,web,Monitor 27in,2,254.55,paid,SPRING,repeat buyer
+ORD-20069,2025-03-07,marketplace,HDMI Adapter,1,12.36,cancelled,BULK5,rush
+ORD-20070,2025-02-23,marketplace,Monitor 27in,6,250.05,refunded,,repeat buyer
+ORD-20071,03/04/2025,marketplace,Mechanical Keyboard,3,89.75,paid,SPRING,gift
+ORD-20072,2025-02-28,marketplace,Office Chair,6,213.30,refunded,,repeat buyer
+ORD-20073,2025-02-17,retail,Wireless Mouse,1,24.04,paid,BULK5,
+ORD-20074,2025-01-26,retail,Mechanical Keyboard,3,88.55,paid,SPRING,rush
+ORD-20075,2025-02-28,web,USB-C Cable,3,10.82,paid,SAVE10,
+ORD-20003,2025-02-24,web,Ergonomic Mouse,1,52.08,paid,SAVE10,gift
+ORD-20077,2025-02-05,marketplace,Ergonomic Mouse,1,47.97,refunded,BULK5,gift
+ORD-20078,2025-02-13,retail,External SSD 1TB,8,113.96,paid,BULK5,
+ORD-20079,2025-02-12,affiliate,Wireless Mouse,6,25.15,paid,SAVE10,
+ORD-20039,2025-02-12,marketplace,HDMI Adapter,5,13.39,paid,,
+ORD-20081,2025-02-25,marketplace,External SSD 1TB,5,119.62,paid,,rush
+ORD-20082,2025-01-06,marketplace,Standing Desk,2,350.15,paid,SPRING,gift
+ORD-20083,2025-02-02,web,Noise Cancelling Headphones,4,220.07,refunded,,
+ORD-20084,2025-02-04,web,Monitor 27in,5,223.61,paid,,rush
+ORD-20085,2025-03-03,marketplace,Office Chair,1,190.35,paid,,
+ORD-20086,2025-03-01,retail,Webcam,1,59.89,paid,,rush
+ORD-20087,2025-02-10,web,Wireless Mouse,3,25.33,paid,,gift
+ORD-20088,2025-02-19,retail,Office Chair,4,177.93,paid,SAVE10,
+ORD-20089,2025-02-19,marketplace,Mechanical Keyboard,2,93.78,paid,SPRING,repeat buyer
+ORD-20090,2025-01-27,web,Webcam,4,56.86,paid,SAVE10,rush
+ORD-20091,2025-01-13,web,HDMI Adapter,3,11.64,paid,SPRING,rush
+ORD-20092,2025-02-21,web,External SSD 1TB,8,112.23,paid,SAVE10,rush
+ORD-20093,2025-01-20,marketplace,Webcam,1,58.98,paid,,repeat buyer
+ORD-20094,2025-01-24,retail,HDMI Adapter,8,11.32,paid,,repeat buyer
+ORD-20095,2025-01-24,affiliate,Office Chair,3,184.86,paid,SPRING,
+ORD-20096,2025-02-27,marketplace,USB-C Cable,2,8.86,paid,SAVE10,repeat buyer
+ORD-20097,2025-03-07,marketplace,Laptop Stand,1,35.04,paid,,repeat buyer
+ORD-20098,2025-01-20,marketplace,Portable Charger,3,33.52,paid,SPRING,rush
+ORD-20099,2025-02-11,web,External SSD 1TB,1,130.36,refunded,SAVE10,rush
+ORD-20100,2025-02-17,web,USB-C Cable,1,8.75,paid,SPRING,repeat buyer
+ORD-20101,2025-02-05,web,Laptop Stand,1,38.56,paid,,gift
+ORD-20102,2025-03-06,marketplace,Laptop Stand,5,39.15,paid,SPRING,
+ORD-20103,2025-02-09,retail,Mechanical Keyboard,4,84.27,cancelled,SAVE10,rush
+ORD-20104,2025-02-13,marketplace,HDMI Adapter,5,12.33,refunded,BULK5,
+ORD-20105,2025-03-07,web,Laptop Stand,3,32.06,paid,SPRING,rush
+ORD-20106,2025-02-13,marketplace,Laptop Stand,1,38.57,paid,,
+ORD-20107,2025-02-23,retail,Ergonomic Mouse,5,47.05,paid,,
+ORD-20108,2025-03-05,marketplace,Laptop Stand,1,35.64,paid,,
+ORD-20109,2025-01-28,retail,Monitor 27in,2,228.05,paid,SPRING,rush
+ORD-20110,2025-02-17,marketplace,Monitor 27in,5,227.25,paid,BULK5,
+ORD-20111,2025-03-09,affiliate,Portable Charger,2,32.13,paid,,
+ORD-20112,2025-02-01,retail,Wireless Mouse,1,$26.59,paid,SAVE10,rush
+ORD-20113,2025-02-10,marketplace,Noise Cancelling Headphones,6,188.64,paid,,gift
+ORD-20114,2025-02-20,marketplace,Noise Cancelling Headphones,2,193.36,paid,,
+ORD-20115,2025-03-07,affiliate,USB-C Cable,4,9.38,paid,BULK5,
+ORD-20116,2025-02-28,marketplace,Office Chair,8,190.55,paid,,repeat buyer
+ORD-20117,2025-02-22,retail,Noise Cancelling Headphones,6,202.07,paid,,rush
+ORD-20118,2025-02-27,marketplace,Wireless Mouse,2,28.73,paid,SPRING,gift
+ORD-20119,2025-02-03,retail,Desk Lamp,3,40.22,paid,BULK5,gift
+ORD-20120,2025-03-09,retail,HDMI Adapter,1,12.17,paid,BULK5,
+ORD-20121,2025-02-20,retail,Portable Charger,2,32.09,refunded,SAVE10,
+ORD-20122,2025-03-08,web,Wireless Mouse,1,23.57,refunded,SPRING,
+ORD-20123,2025-02-08,retail,Office Chair,1,216.04,paid,,
+ORD-20124,2025-02-25,marketplace,Laptop Stand,2,38.50,paid,,
+ORD-20125,2025-03-08,marketplace,Webcam,3,62.66,cancelled,,
+ORD-20126,2025-01-21,web,Ergonomic Mouse,4,46.10,paid,,
+ORD-20127,2025-02-03,web,Noise Cancelling Headphones,4,219.52,cancelled,BULK5,rush
+ORD-20128,2025-01-29,marketplace,Monitor 27in,1,252.42,paid,SAVE10,gift
+ORD-20129,2025-01-11,web,External SSD 1TB,6,134.46,paid,SAVE10,gift
+ORD-20130,2025-02-04,web,Ergonomic Mouse,2,54.15,paid,BULK5,repeat buyer
+ORD-20131,2025-01-16,marketplace,USB-C Cable,2,10.14,paid,SPRING,rush
+ORD-20132,2025-02-04,retail,Standing Desk,2,329.64,refunded,SPRING,repeat buyer
+ORD-20133,2025-01-28,web,External SSD 1TB,2,132.20,paid,SPRING,rush
+ORD-20134,2025-01-06,affiliate,External SSD 1TB,6,134.40,paid,SPRING,rush
+ORD-20135,2025-02-24,web,Portable Charger,1,28.90,paid,BULK5,gift
+ORD-20136,2025-02-15,web,USB-C Cable,6,9.70,paid,,rush
+ORD-20137,2025-02-21,retail,Noise Cancelling Headphones,1,191.12,paid,SAVE10,repeat buyer
+ORD-20138,2025-03-03,retail,Webcam,3,58.74,cancelled,SPRING,rush
+ORD-20139,2025-02-22,affiliate,Standing Desk,2,332.38,paid,SAVE10,
+ORD-20140,2025-03-08,retail,Standing Desk,5,322.20,paid,,
+ORD-20141,2025-02-04,marketplace,Webcam,4,66.54,paid,BULK5,
+ORD-20142,2025-02-18,affiliate,Mechanical Keyboard,3,89.58,paid,,gift
+ORD-20143,2025-02-16,retail,USB-C Cable,4,10.16,paid,,
+ORD-20144,2025-01-25,marketplace,Office Chair,1,190.77,paid,BULK5,repeat buyer
+ORD-20145,2025-02-01,marketplace,External SSD 1TB,4,112.19,paid,SPRING,repeat buyer
+ORD-20146,2025-02-01,marketplace,Laptop Stand,1,39.28,paid,BULK5,
+ORD-20147,2025-03-09,marketplace,Ergonomic Mouse,2,45.76,cancelled,BULK5,gift
+ORD-20148,2025-03-08,web,USB-C Cable,8,9.20,cancelled,,
+ORD-20149,2025-01-09,retail,Portable Charger,2,29.01,refunded,,gift
+ORD-20001,2025-02-12,retail,Mechanical Keyboard,5,88.53,paid,SAVE10,gift
+ORD-20151,2025-02-09,retail,Laptop Stand,5,32.79,paid,BULK5,gift
+ORD-20152,2025-02-12,web,Webcam,1,61.00,paid,,
+ORD-20153,2025-02-05,web,Office Chair,5,195.78,paid,,
+ORD-20154,2025-02-21,web,Portable Charger,6,32.03,paid,,
+ORD-20155,2025-02-05,marketplace,Standing Desk,2,394.10,paid,,rush
+ORD-20156,2025-02-13,marketplace,Noise Cancelling Headphones,1,208.18,paid,BULK5,
+ORD-20157,2025-02-13,marketplace,Desk Lamp,2,44.04,paid,,repeat buyer
+ORD-20158,2025-02-21,web,Standing Desk,1,348.29,paid,SPRING,
+ORD-20159,2025-02-01,marketplace,HDMI Adapter,1,12.07,paid,SAVE10,
+ORD-20160,2025-01-10,web,USB-C Cable,5,10.35,paid,SAVE10,repeat buyer
+ORD-20161,2025-01-09,marketplace,External SSD 1TB,8,120.72,paid,SPRING,
+ORD-20162,2025-03-08,marketplace,Laptop Stand,3,33.43,paid,SPRING,gift
+ORD-20163,2025-03-01,web,USB-C Cable,2,9.35,paid,SAVE10,
+ORD-20164,Mar 01 2025,marketplace,Desk Lamp,8,41.87,paid,,rush
+ORD-20165,2025-01-07,affiliate,Noise Cancelling Headphones,2,199.15,paid,SAVE10,gift
+ORD-20166,2025-02-11,marketplace,Ergonomic Mouse,2,45.43,paid,,gift
+ORD-20167,2025-01-30,web,Monitor 27in,3,227.77,paid,,repeat buyer
+ORD-20168,2025-01-11,web,Wireless Mouse,1,23.46,paid,SPRING,
+ORD-20169,2025-02-06,retail,External SSD 1TB,2,112.60,paid,SPRING,
+ORD-20170,2025-01-24,marketplace,Ergonomic Mouse,4,45.59,paid,SPRING,repeat buyer
+ORD-20171,2025-01-09,retail,Wireless Mouse,1,27.38,refunded,BULK5,rush
+ORD-20172,2025-01-13,web,Wireless Mouse,3,26.05,paid,SAVE10,repeat buyer
+ORD-20173,2025-02-10,web,Standing Desk,4,380.64,paid,SPRING,
+ORD-20174,2025-02-04,marketplace,USB-C Cable,6,10.29,paid,SPRING,rush
+ORD-20159,2025-01-13,retail,Monitor 27in,1,234.91,paid,BULK5,
+ORD-20176,2025-02-02,marketplace,Standing Desk,1,327.39,paid,BULK5,rush
+ORD-20177,2025-01-20,marketplace,Webcam,5,62.51,paid,SAVE10,rush
+ORD-20178,2025-01-28,web,HDMI Adapter,8,11.32,paid,BULK5,gift
+ORD-20179,2025-00-12,web,External SSD 1TB,1,123.00,paid,,repeat buyer
+ORD-20180,2025-02-03,marketplace,Ergonomic Mouse,6,52.12,paid,BULK5,gift
+ORD-20181,2025-02-03,retail,USB-C Cable,3,10.03,paid,BULK5,repeat buyer
+ORD-20182,2025-01-10,web,Laptop Stand,3,34.02,paid,,repeat buyer
+ORD-20183,2025-02-13,affiliate,Desk Lamp,2,43.54,paid,,
+ORD-20184,2025-03-05,marketplace,Portable Charger,3,31.05,paid,,
+ORD-20185,2025-01-12,retail,Portable Charger,6,31.07,paid,SAVE10,
+ORD-20186,2025-01-21,marketplace,HDMI Adapter,2,11.48,paid,BULK5,rush
+ORD-20187,2025-01-30,web,Monitor 27in,5,243.91,paid,BULK5,
+ORD-20188,2025-01-27,web,USB-C Cable,3,10.60,paid,,gift
+ORD-20189,2025-01-27,web,USB-C Cable,3,10.85,paid,SPRING,gift
+ORD-20190,02/13/2025,web,HDMI Adapter,8,13.28,paid,,
+ORD-20191,2025-02-16,web,Ergonomic Mouse,2,47.11,paid,SAVE10,rush
+ORD-20192,2025-03-07,web,Portable Charger,3,28.12,paid,,repeat buyer
+ORD-20193,2025-02-24,web,Desk Lamp,5,39.85,cancelled,,gift
+ORD-20194,2025-02-13,marketplace,Monitor 27in,1,243.59,paid,SAVE10,
+ORD-20195,bad-date,affiliate,Monitor 27in,2,225.69,paid,SPRING,gift
+ORD-20196,not_a_date,marketplace,Mechanical Keyboard,2,90.40,paid,,
+ORD-20197,2025-02-04,marketplace,Portable Charger,2,34.26,paid,SAVE10,repeat buyer
+ORD-20198,2025-01-14,retail,Standing Desk,2,365.59,paid,,repeat buyer
+ORD-20199,2025-03-01,web,USB-C Cable,2,10.72,paid,SAVE10,
+ORD-20200,2025-01-11,affiliate,Mechanical Keyboard,5,91.38,cancelled,SPRING,repeat buyer
+ORD-20201,2025-01-29,web,Mechanical Keyboard,2,89.39,paid,,rush
+ORD-20202,2025-02-25,retail,Noise Cancelling Headphones,1,214.94,paid,SAVE10,
+ORD-20203,2025-02-03,web,External SSD 1TB,1,132.33,paid,,repeat buyer
+ORD-20204,2025-02-08,web,Monitor 27in,1,213.19,paid,SPRING,repeat buyer
+ORD-20205,2025-02-04,marketplace,USB-C Cable,1,8.78,cancelled,,repeat buyer
+ORD-20206,2025-01-21,marketplace,HDMI Adapter,1,11.70,paid,SPRING,gift
+ORD-20207,2025-02-17,web,Ergonomic Mouse,1,51.01,refunded,,repeat buyer
+ORD-20208,2025-02-10,marketplace,Wireless Mouse,2,28.63,paid,BULK5,
+ORD-20209,2025-01-28,marketplace,Portable Charger,1,28.31,paid,,rush
+ORD-20210,2025-01-14,marketplace,Wireless Mouse,2,27.76,paid,SPRING,
