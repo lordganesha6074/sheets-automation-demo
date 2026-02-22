@@ -4,7 +4,9 @@ Automates a weekly reporting workflow that’s often done by manual spreadsheet 
 
 Run it on an export CSV to produce cleaned outputs, summaries, and a share-ready Excel report (and optionally publish to Google Sheets).
 
-**Demo video:** (coming soon)
+**Demo video:** link coming soon
+
+See `docs/` for recording + outreach kit.
 
 ## Ideal for
 - Teams doing weekly/monthly reporting from CSV exports into Sheets/Excel.
