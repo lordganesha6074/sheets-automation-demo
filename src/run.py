@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 import argparse
+import json
 import os
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -14,6 +16,8 @@ CLEAN_PATH = PROCESSED_DIR / "clean_orders.csv"
 WEEKLY_PATH = PROCESSED_DIR / "weekly_summary.csv"
 TOP_PRODUCTS_PATH = PROCESSED_DIR / "top_products.csv"
 REPORT_PATH = PROCESSED_DIR / "weekly_report.xlsx"
+QUARANTINE_PATH = PROCESSED_DIR / "quarantine_bad_rows.csv"
+QUALITY_REPORT_PATH = PROCESSED_DIR / "data_quality_report.json"
 
 
 def find_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
@@ -33,12 +37,38 @@ def to_numeric_currency(series: pd.Series) -> pd.Series:
     return pd.to_numeric(cleaned, errors="coerce")
 
 
+def quarantine_rows(
+    dropped_rows: list[pd.DataFrame],
+    df: pd.DataFrame,
+    mask: pd.Series,
+    reason: str,
+) -> pd.DataFrame:
+    if not mask.any():
+        return df
+
+    quarantined = df.loc[mask].copy()
+    quarantined["drop_reason"] = reason
+    dropped_rows.append(quarantined)
+    return df.loc[~mask].copy()
+
+
 def main(publish: bool = False) -> None:
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_csv(RAW_PATH)
     df["_source_row"] = range(len(df))
-    print(f"[rows] raw input: {len(df)}")
+    counters = {
+        "raw_rows": len(df),
+        "dropped_unparseable_date": 0,
+        "dropped_invalid_amount": 0,
+        "dropped_missing_required": 0,
+        "filtered_paid": 0,
+        "deduped": 0,
+        "final_rows": 0,
+    }
+    dropped_rows: list[pd.DataFrame] = []
+
+    print(f"[rows] raw input: {counters['raw_rows']}")
 
     order_id_col = find_column(df, ["order_id", "order id", "id"])
     order_date_col = find_column(df, ["order_date", "order timestamp", "order_datetime", "date"])
@@ -63,11 +93,20 @@ def main(publish: bool = False) -> None:
     if price_col is None and revenue_col is None:
         raise ValueError("Need either a price column or a revenue column.")
 
+    missing_required_mask = df[[order_id_col, status_col, channel_col, product_col, units_col]]
+    missing_required_mask = missing_required_mask.isna().any(axis=1)
+    counters["dropped_missing_required"] = int(missing_required_mask.sum())
+    df = quarantine_rows(dropped_rows, df, missing_required_mask, "missing_required")
+
     df[order_date_col] = pd.to_datetime(df[order_date_col], errors="coerce")
-    invalid_dates = df[order_date_col].isna().sum()
-    if invalid_dates:
-        print(f"[dates] dropped {invalid_dates} rows with unparseable order_date")
-    df = df.dropna(subset=[order_date_col]).copy()
+    invalid_date_mask = df[order_date_col].isna()
+    counters["dropped_unparseable_date"] = int(invalid_date_mask.sum())
+    if counters["dropped_unparseable_date"]:
+        print(
+            f"[dates] dropped {counters['dropped_unparseable_date']} rows "
+            "with unparseable order_date"
+        )
+    df = quarantine_rows(dropped_rows, df, invalid_date_mask, "unparseable_order_date")
     print(f"[rows] after date parsing: {len(df)}")
 
     df[units_col] = pd.to_numeric(df[units_col], errors="coerce")
@@ -98,8 +137,19 @@ def main(publish: bool = False) -> None:
                 "backfilling with units * price where possible, otherwise 0"
             )
 
+    invalid_amount_mask = pd.Series(False, index=df.index)
+    if price_col is not None:
+        invalid_amount_mask = invalid_amount_mask | df[price_col].isna()
+    if revenue_col is not None:
+        invalid_amount_mask = invalid_amount_mask & df[revenue_col].isna()
+
+    counters["dropped_invalid_amount"] = int(invalid_amount_mask.sum())
+    df = quarantine_rows(dropped_rows, df, invalid_amount_mask, "invalid_amount")
+
     df[status_col] = df[status_col].astype(str).str.strip().str.lower()
-    df = df[df[status_col] == "paid"].copy()
+    paid_mask = df[status_col] == "paid"
+    counters["filtered_paid"] = int((~paid_mask).sum())
+    df = quarantine_rows(dropped_rows, df, ~paid_mask, "status_not_paid")
     print(f"[rows] after paid filter: {len(df)}")
 
     missing_order_ids = df[order_id_col].isna().sum()
@@ -118,11 +168,18 @@ def main(publish: bool = False) -> None:
         ascending=[True, True],
         kind="mergesort",
     )
+    dedup_mask = df_with_id.duplicated(subset=[order_id_col], keep="last")
+    counters["deduped"] = int(dedup_mask.sum())
+    deduped_rows = df_with_id.loc[dedup_mask].copy()
+    if not deduped_rows.empty:
+        deduped_rows["drop_reason"] = "duplicate_order_id"
+        dropped_rows.append(deduped_rows)
     df_with_id = df_with_id.drop_duplicates(subset=[order_id_col], keep="last")
     print(f"[rows] after dedup: {len(df_with_id)}")
 
     # Keep rows with missing order_id for non-order metrics, but never include them in order counts.
     df = pd.concat([df_with_id, df_missing_id], ignore_index=True)
+    counters["final_rows"] = len(df)
 
     if revenue_col is not None:
         df["_revenue"] = df[revenue_col].fillna(df[units_col].astype(float) * df.get(price_col, 0).fillna(0) if price_col else 0)
@@ -167,6 +224,20 @@ def main(publish: bool = False) -> None:
     with pd.ExcelWriter(REPORT_PATH, engine="openpyxl") as writer:
         weekly_summary.to_excel(writer, sheet_name="Summary", index=False)
         top_products.to_excel(writer, sheet_name="Top Products", index=False)
+
+    quarantine_df = (
+        pd.concat(dropped_rows, ignore_index=True)
+        if dropped_rows
+        else pd.DataFrame(columns=[*df.columns, "drop_reason"])
+    )
+    quarantine_df.to_csv(QUARANTINE_PATH, index=False)
+
+    quality_report = {
+        **counters,
+        "run_timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with QUALITY_REPORT_PATH.open("w", encoding="utf-8") as fp:
+        json.dump(quality_report, fp, indent=2)
 
     if publish:
         try:
