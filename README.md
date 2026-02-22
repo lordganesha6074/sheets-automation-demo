@@ -2,6 +2,10 @@
 
 This demo shows how to automate a weekly order reporting workflow that is often maintained manually in spreadsheets.
 
+**Note:** All sample data in this repo is synthetic and generated for demonstration.
+
+**Demo video:** (coming soon)
+
 ## Problem Statement
 Operations teams need a reliable weekly order report, but manual spreadsheet updates are time-consuming and error-prone. This project demonstrates a lightweight Python pipeline that standardizes order data and generates ready-to-share weekly outputs for stakeholders.
 
@@ -47,6 +51,25 @@ python src/run.py --input data/raw/orders_export.csv --outdir data/processed
 python src/run.py --start-date 2024-01-01 --end-date 2024-03-31
 python src/run.py --no-paid-only
 ```
+
+## Deliverables
+
+- `clean_orders.csv`
+- `weekly_summary.csv`
+- `top_products.csv`
+- `weekly_report.xlsx`
+- Optional Google Sheets tabs: `weekly_summary`, `top_products`
+
+## Preview
+
+Preview is an example; generated outputs may vary.
+
+| week_start | week_end   | total_orders | total_revenue | average_order_value |
+|------------|------------|--------------|---------------|---------------------|
+| 2024-03-04 | 2024-03-10 | 128          | 18432.75      | 144.01              |
+| 2024-03-11 | 2024-03-17 | 141          | 20109.20      | 142.62              |
+| 2024-03-18 | 2024-03-24 | 136          | 19688.45      | 144.77              |
+| 2024-03-25 | 2024-03-31 | 149          | 21452.10      | 143.97              |
 
 ## Outputs
 After a successful run, the pipeline writes the following files:
