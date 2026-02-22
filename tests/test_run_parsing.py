@@ -64,7 +64,13 @@ def test_dedup_flow_keeps_last_row_by_order_date_and_source_row() -> None:
                 ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-03", "2024-01-04"]
             ),
             "_source_row": [0, 1, 2, 9, 4],
-            "marker": ["older", "newer", "same_date_lower_source", "same_date_higher_source", "unique"],
+            "marker": [
+                "older",
+                "newer",
+                "same_date_lower_source",
+                "same_date_higher_source",
+                "unique",
+            ],
         }
     )
 
