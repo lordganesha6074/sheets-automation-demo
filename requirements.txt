@@ -3,3 +3,6 @@ python-dateutil
 openpyxl
 gspread
 google-auth
+
+ruff
+pytest
