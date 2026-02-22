@@ -77,10 +77,15 @@ Typical real-world messiness handled in weekly exports:
 Data-quality behavior includes quarantining dropped rows into `data/processed/quarantine_bad_rows.csv` (for example: unparseable dates, missing required fields, invalid amounts, duplicates, or filtered-out rows).
 
 ## How to use it (quickstart)
-1. Export CSV from your system.
-2. Put it into `data/raw/` (or use `--input`).
-3. Run `python src/run.py` (optionally add dates / publish).
-4. Collect outputs in `data/processed/` (and optional Google Sheet tabs).
+1. Generate the example export for demo/testing:
+   ```bash
+   python scripts/generate_orders_export.py
+   ```
+2. Run the pipeline:
+   ```bash
+   python src/run.py
+   ```
+3. Collect outputs in `data/processed/` (and optional Google Sheet tabs).
 
 ## Setup
 Python and pip are the actual runtime requirements. Recommended (strongly): use a virtual environment to avoid dependency conflicts.

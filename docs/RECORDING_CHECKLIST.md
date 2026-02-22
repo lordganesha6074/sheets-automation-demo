@@ -3,6 +3,7 @@
 - [ ] Clean desktop: close unrelated tabs/apps, hide notifications.
 - [ ] Terminal + file explorer visible side-by-side (roughly 60/40 split).
 - [ ] Increase font size (terminal/editor) so file names and commands are readable.
+- [ ] First generate the example export: `python scripts/generate_orders_export.py`
 - [ ] Use this run command (Linux/macOS): `python src/run.py`
 - [ ] Use this run command (Windows PowerShell): `python .\src\run.py --input .\data\raw\orders_export.csv --outdir .\data\processed`
 - [ ] After run, open `data/processed/clean_orders.csv` and `data/processed/weekly_summary.csv`.
