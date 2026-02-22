@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_PATH = ROOT / "data" / "raw" / "orders_export.csv"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "processed"
@@ -105,7 +104,10 @@ def main(
         raise ValueError("Need either a price column or a revenue column.")
 
     LOGGER.debug(
-        "[columns] order_id=%s order_date=%s status=%s channel=%s product=%s units=%s price=%s revenue=%s",
+        (
+            "[columns] order_id=%s order_date=%s status=%s channel=%s product=%s "
+            "units=%s price=%s revenue=%s"
+        ),
         order_id_col,
         order_date_col,
         status_col,
@@ -223,10 +225,17 @@ def main(
     df = pd.concat([df_with_id, df_missing_id], ignore_index=True)
     counters["final_rows"] = len(df)
 
-    if revenue_col is not None:
-        df["_revenue"] = df[revenue_col].fillna(df[units_col].astype(float) * df.get(price_col, 0).fillna(0) if price_col else 0)
+    units_revenue = df[units_col].astype(float)
+    if price_col is not None:
+        price_series = df[price_col].fillna(0)
     else:
-        df["_revenue"] = df[units_col].astype(float) * df[price_col].fillna(0)
+        price_series = 0
+    computed_revenue = units_revenue * price_series
+
+    if revenue_col is not None:
+        df["_revenue"] = df[revenue_col].fillna(computed_revenue)
+    else:
+        df["_revenue"] = computed_revenue
 
     df["week"] = df[order_date_col].dt.to_period("W-MON").dt.start_time.dt.strftime("%Y-%m-%d")
 
