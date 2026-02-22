@@ -269,12 +269,28 @@ def main(
     )
 
 
-    weekly_summary.to_csv(weekly_path, index=False)
-    top_products.to_csv(top_products_path, index=False)
+    weekly_summary["revenue"] = weekly_summary["revenue"].round(2)
+    top_products["revenue"] = top_products["revenue"].round(2)
+
+    weekly_summary.to_csv(weekly_path, index=False, float_format="%.2f")
+    top_products.to_csv(top_products_path, index=False, float_format="%.2f")
 
     with pd.ExcelWriter(report_path, engine="openpyxl") as writer:
         weekly_summary.to_excel(writer, sheet_name="Summary", index=False)
         top_products.to_excel(writer, sheet_name="Top Products", index=False)
+
+        summary_sheet = writer.sheets["Summary"]
+        summary_revenue_col = weekly_summary.columns.get_loc("revenue") + 1
+        for row_idx in range(2, len(weekly_summary) + 2):
+            summary_sheet.cell(row=row_idx, column=summary_revenue_col).number_format = "0.00"
+
+        top_products_sheet = writer.sheets["Top Products"]
+        top_products_revenue_col = top_products.columns.get_loc("revenue") + 1
+        for row_idx in range(2, len(top_products) + 2):
+            top_cell = top_products_sheet.cell(
+                row=row_idx, column=top_products_revenue_col
+            )
+            top_cell.number_format = "0.00"
 
     quarantine_df = (
         pd.concat(dropped_rows, ignore_index=True)
