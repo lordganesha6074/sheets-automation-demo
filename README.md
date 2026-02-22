@@ -33,10 +33,19 @@ Operations teams need a reliable weekly order report, but manual spreadsheet upd
    ```
 
 ## Run
-Execute the pipeline:
+Execute the pipeline with defaults:
 
 ```bash
 python src/run.py
+```
+
+Common options:
+
+```bash
+python src/run.py --verbose
+python src/run.py --input data/raw/orders_export.csv --outdir data/processed
+python src/run.py --start-date 2024-01-01 --end-date 2024-03-31
+python src/run.py --no-paid-only
 ```
 
 ## Outputs
