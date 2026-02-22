@@ -52,9 +52,14 @@ def generate_rows(total_rows: int = 210) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
 
     messy_count = 0
-    parseable_mixed_rows = set(random.sample(range(total_rows), 6))
-    invalid_date_rows = set(random.sample([i for i in range(total_rows) if i not in parseable_mixed_rows], 6))
-    currency_rows = set(random.sample([i for i in range(total_rows) if i not in invalid_date_rows], 6))
+    all_rows = list(range(total_rows))
+    parseable_mixed_rows = set(random.sample(all_rows, 6))
+
+    invalid_date_candidates = [i for i in all_rows if i not in parseable_mixed_rows]
+    invalid_date_rows = set(random.sample(invalid_date_candidates, 6))
+
+    currency_candidates = [i for i in all_rows if i not in invalid_date_rows]
+    currency_rows = set(random.sample(currency_candidates, 6))
     duplicate_rows = set(random.sample([i for i in range(20, total_rows)], 6))
 
     for i in range(total_rows):
