@@ -1,23 +1,20 @@
 from __future__ import annotations
 
-from pathlib import Path
 import argparse
 import json
+import logging
 import os
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW_PATH = ROOT / "data" / "raw" / "orders_export.csv"
-PROCESSED_DIR = ROOT / "data" / "processed"
-CLEAN_PATH = PROCESSED_DIR / "clean_orders.csv"
-WEEKLY_PATH = PROCESSED_DIR / "weekly_summary.csv"
-TOP_PRODUCTS_PATH = PROCESSED_DIR / "top_products.csv"
-REPORT_PATH = PROCESSED_DIR / "weekly_report.xlsx"
-QUARANTINE_PATH = PROCESSED_DIR / "quarantine_bad_rows.csv"
-QUALITY_REPORT_PATH = PROCESSED_DIR / "data_quality_report.json"
+DEFAULT_INPUT_PATH = ROOT / "data" / "raw" / "orders_export.csv"
+DEFAULT_OUTPUT_DIR = ROOT / "data" / "processed"
+
+LOGGER = logging.getLogger(__name__)
 
 
 def find_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
@@ -52,10 +49,23 @@ def quarantine_rows(
     return df.loc[~mask].copy()
 
 
-def main(publish: bool = False) -> None:
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+def main(
+    publish: bool = False,
+    input_path: Path = DEFAULT_INPUT_PATH,
+    outdir: Path = DEFAULT_OUTPUT_DIR,
+    paid_only: bool = True,
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> None:
+    outdir.mkdir(parents=True, exist_ok=True)
+    clean_path = outdir / "clean_orders.csv"
+    weekly_path = outdir / "weekly_summary.csv"
+    top_products_path = outdir / "top_products.csv"
+    report_path = outdir / "weekly_report.xlsx"
+    quarantine_path = outdir / "quarantine_bad_rows.csv"
+    quality_report_path = outdir / "data_quality_report.json"
 
-    df = pd.read_csv(RAW_PATH)
+    df = pd.read_csv(input_path)
     df["_source_row"] = range(len(df))
     counters = {
         "raw_rows": len(df),
@@ -68,7 +78,8 @@ def main(publish: bool = False) -> None:
     }
     dropped_rows: list[pd.DataFrame] = []
 
-    print(f"[rows] raw input: {counters['raw_rows']}")
+    LOGGER.info("[rows] raw input: %s", counters["raw_rows"])
+    LOGGER.debug("[io] input=%s outdir=%s", input_path, outdir)
 
     order_id_col = find_column(df, ["order_id", "order id", "id"])
     order_date_col = find_column(df, ["order_date", "order timestamp", "order_datetime", "date"])
@@ -93,6 +104,18 @@ def main(publish: bool = False) -> None:
     if price_col is None and revenue_col is None:
         raise ValueError("Need either a price column or a revenue column.")
 
+    LOGGER.debug(
+        "[columns] order_id=%s order_date=%s status=%s channel=%s product=%s units=%s price=%s revenue=%s",
+        order_id_col,
+        order_date_col,
+        status_col,
+        channel_col,
+        product_col,
+        units_col,
+        price_col,
+        revenue_col,
+    )
+
     missing_required_mask = df[[order_id_col, status_col, channel_col, product_col, units_col]]
     missing_required_mask = missing_required_mask.isna().any(axis=1)
     counters["dropped_missing_required"] = int(missing_required_mask.sum())
@@ -102,19 +125,32 @@ def main(publish: bool = False) -> None:
     invalid_date_mask = df[order_date_col].isna()
     counters["dropped_unparseable_date"] = int(invalid_date_mask.sum())
     if counters["dropped_unparseable_date"]:
-        print(
-            f"[dates] dropped {counters['dropped_unparseable_date']} rows "
-            "with unparseable order_date"
+        LOGGER.info(
+            "[dates] dropped %s rows with unparseable order_date",
+            counters["dropped_unparseable_date"],
         )
     df = quarantine_rows(dropped_rows, df, invalid_date_mask, "unparseable_order_date")
-    print(f"[rows] after date parsing: {len(df)}")
+    LOGGER.info("[rows] after date parsing: %s", len(df))
+
+    if start_date:
+        start_dt = pd.to_datetime(start_date)
+        before_start_mask = df[order_date_col] < start_dt
+        LOGGER.debug("[window] applying start date >= %s", start_dt.date())
+        df = quarantine_rows(dropped_rows, df, before_start_mask, "before_start_date")
+    if end_date:
+        end_dt = pd.to_datetime(end_date)
+        after_end_mask = df[order_date_col] > end_dt
+        LOGGER.debug("[window] applying end date <= %s", end_dt.date())
+        df = quarantine_rows(dropped_rows, df, after_end_mask, "after_end_date")
+    if start_date or end_date:
+        LOGGER.info("[rows] after optional date window: %s", len(df))
 
     df[units_col] = pd.to_numeric(df[units_col], errors="coerce")
     invalid_units = df[units_col].isna().sum()
     if invalid_units:
-        print(
-            f"[units] coerced {invalid_units} missing/invalid values to 0 "
-            "before aggregation"
+        LOGGER.info(
+            "[units] coerced %s missing/invalid values to 0 before aggregation",
+            invalid_units,
         )
     df[units_col] = df[units_col].fillna(0)
     df[units_col] = df[units_col].round().astype("Int64")
@@ -123,18 +159,20 @@ def main(publish: bool = False) -> None:
         df[price_col] = to_numeric_currency(df[price_col])
         invalid_price = df[price_col].isna().sum()
         if invalid_price:
-            print(
-                f"[price] {invalid_price} missing/invalid values detected; "
-                "defaulting to 0 when revenue is computed from units * price"
+            LOGGER.info(
+                "[price] %s missing/invalid values detected; defaulting to 0 "
+                "when revenue is computed from units * price",
+                invalid_price,
             )
 
     if revenue_col is not None:
         df[revenue_col] = to_numeric_currency(df[revenue_col])
         invalid_revenue = df[revenue_col].isna().sum()
         if invalid_revenue:
-            print(
-                f"[revenue] {invalid_revenue} missing/invalid values detected; "
-                "backfilling with units * price where possible, otherwise 0"
+            LOGGER.info(
+                "[revenue] %s missing/invalid values detected; backfilling with "
+                "units * price where possible, otherwise 0",
+                invalid_revenue,
             )
 
     invalid_amount_mask = pd.Series(False, index=df.index)
@@ -147,16 +185,20 @@ def main(publish: bool = False) -> None:
     df = quarantine_rows(dropped_rows, df, invalid_amount_mask, "invalid_amount")
 
     df[status_col] = df[status_col].astype(str).str.strip().str.lower()
-    paid_mask = df[status_col] == "paid"
-    counters["filtered_paid"] = int((~paid_mask).sum())
-    df = quarantine_rows(dropped_rows, df, ~paid_mask, "status_not_paid")
-    print(f"[rows] after paid filter: {len(df)}")
+    if paid_only:
+        paid_mask = df[status_col] == "paid"
+        counters["filtered_paid"] = int((~paid_mask).sum())
+        df = quarantine_rows(dropped_rows, df, ~paid_mask, "status_not_paid")
+        LOGGER.info("[rows] after paid filter: %s", len(df))
+    else:
+        LOGGER.info("[rows] skipping paid-only filter")
 
     missing_order_ids = df[order_id_col].isna().sum()
     if missing_order_ids:
-        print(
-            f"[order_id] excluding {missing_order_ids} paid rows with missing order_id "
-            "from dedup/order metrics"
+        LOGGER.info(
+            "[order_id] excluding %s paid rows with missing order_id from dedup/order "
+            "metrics",
+            missing_order_ids,
         )
 
     df_with_id = df[df[order_id_col].notna()].copy()
@@ -175,7 +217,7 @@ def main(publish: bool = False) -> None:
         deduped_rows["drop_reason"] = "duplicate_order_id"
         dropped_rows.append(deduped_rows)
     df_with_id = df_with_id.drop_duplicates(subset=[order_id_col], keep="last")
-    print(f"[rows] after dedup: {len(df_with_id)}")
+    LOGGER.info("[rows] after dedup: %s", len(df_with_id))
 
     # Keep rows with missing order_id for non-order metrics, but never include them in order counts.
     df = pd.concat([df_with_id, df_missing_id], ignore_index=True)
@@ -191,7 +233,7 @@ def main(publish: bool = False) -> None:
     clean_df = df.copy()
     clean_df[order_date_col] = clean_df[order_date_col].dt.strftime("%Y-%m-%d")
     clean_df = clean_df.drop(columns=["_source_row"])
-    clean_df.to_csv(CLEAN_PATH, index=False)
+    clean_df.to_csv(clean_path, index=False)
 
     weekly_summary = (
         df.groupby(["week", channel_col], dropna=False)
@@ -218,10 +260,10 @@ def main(publish: bool = False) -> None:
     )
 
 
-    weekly_summary.to_csv(WEEKLY_PATH, index=False)
-    top_products.to_csv(TOP_PRODUCTS_PATH, index=False)
+    weekly_summary.to_csv(weekly_path, index=False)
+    top_products.to_csv(top_products_path, index=False)
 
-    with pd.ExcelWriter(REPORT_PATH, engine="openpyxl") as writer:
+    with pd.ExcelWriter(report_path, engine="openpyxl") as writer:
         weekly_summary.to_excel(writer, sheet_name="Summary", index=False)
         top_products.to_excel(writer, sheet_name="Top Products", index=False)
 
@@ -230,13 +272,13 @@ def main(publish: bool = False) -> None:
         if dropped_rows
         else pd.DataFrame(columns=[*df.columns, "drop_reason"])
     )
-    quarantine_df.to_csv(QUARANTINE_PATH, index=False)
+    quarantine_df.to_csv(quarantine_path, index=False)
 
     quality_report = {
         **counters,
         "run_timestamp": datetime.now(timezone.utc).isoformat(),
     }
-    with QUALITY_REPORT_PATH.open("w", encoding="utf-8") as fp:
+    with quality_report_path.open("w", encoding="utf-8") as fp:
         json.dump(quality_report, fp, indent=2)
 
     if publish:
@@ -249,19 +291,65 @@ def main(publish: bool = False) -> None:
 
         sheet_id = publish_csvs(
             sheet_id=os.getenv("GOOGLE_SHEET_ID"),
-            weekly_csv=WEEKLY_PATH,
-            top_csv=TOP_PRODUCTS_PATH,
+            weekly_csv=weekly_path,
+            top_csv=top_products_path,
         )
-        print(f"[publish] Google Sheet ID: {sheet_id}")
-        print(f"[publish] Google Sheet URL: https://docs.google.com/spreadsheets/d/{sheet_id}")
+        LOGGER.info("[publish] Google Sheet ID: %s", sheet_id)
+        LOGGER.info(
+            "[publish] Google Sheet URL: https://docs.google.com/spreadsheets/d/%s",
+            sheet_id,
+        )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate weekly reports from raw orders data")
+    parser.add_argument(
+        "--input",
+        default="data/raw/orders_export.csv",
+        help="Path to input CSV (default: data/raw/orders_export.csv)",
+    )
+    parser.add_argument(
+        "--outdir",
+        default="data/processed",
+        help="Output directory (default: data/processed)",
+    )
+    parser.add_argument(
+        "--paid-only",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Filter rows to paid status only (use --no-paid-only to disable)",
+    )
+    parser.add_argument(
+        "--start-date",
+        default=None,
+        help="Optional start date (YYYY-MM-DD), inclusive",
+    )
+    parser.add_argument(
+        "--end-date",
+        default=None,
+        help="Optional end date (YYYY-MM-DD), inclusive",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable DEBUG logging",
+    )
     parser.add_argument(
         "--publish",
         action="store_true",
         help="Publish weekly_summary.csv and top_products.csv to Google Sheets",
     )
     args = parser.parse_args()
-    main(publish=args.publish)
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(levelname)s:%(name)s:%(message)s",
+    )
+
+    main(
+        publish=args.publish,
+        input_path=ROOT / args.input,
+        outdir=ROOT / args.outdir,
+        paid_only=args.paid_only,
+        start_date=args.start_date,
+        end_date=args.end_date,
+    )
