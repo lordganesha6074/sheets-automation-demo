@@ -130,7 +130,7 @@ python src/run.py --no-paid-only
 ```
 
 ## Windows (PowerShell) Support
-Windows and Linux are supported. I test primarily on Linux; Windows validation will be added next (and we’ll troubleshoot any Windows-specific issues).
+Use the commands below to run the pipeline on Windows (PowerShell).
 
 ```powershell
 py -m venv .venv
@@ -153,14 +153,18 @@ Preview table below shows example output format; generated results vary by your 
 
 | week       | channel  | orders | units | revenue |
 |------------|----------|--------|-------|---------|
-| 2024-W10   | Shopify  | 52     | 79    | 6342.40 |
-| 2024-W10   | Amazon   | 37     | 61    | 5188.90 |
-| 2024-W10   | Stripe   | 18     | 18    | 2145.00 |
-| 2024-W11   | Shopify  | 49     | 73    | 6024.75 |
-| 2024-W11   | Amazon   | 41     | 66    | 5579.30 |
-| 2024-W11   | WooCommerce | 22  | 35    | 2891.60 |
-| 2024-W12   | Shopify  | 55     | 82    | 6610.15 |
-| 2024-W12   | Stripe   | 20     | 20    | 2389.50 |
+| 2024-12-31 | affiliate | 9      | 16    | 1501.96 |
+| 2024-12-31 | marketplace | 24   | 48    | 4296.33 |
+| 2024-12-31 | retail   | 15     | 27    | 2584.74 |
+| 2024-12-31 | web      | 31     | 59    | 5338.12 |
+| 2025-01-07 | affiliate | 11     | 20    | 1844.58 |
+| 2025-01-07 | marketplace | 28   | 54    | 4867.40 |
+| 2025-01-07 | retail   | 17     | 31    | 2960.21 |
+| 2025-01-07 | web      | 34     | 64    | 5792.85 |
+| 2025-01-14 | affiliate | 10     | 18    | 1718.09 |
+| 2025-01-14 | marketplace | 26   | 50    | 4623.77 |
+| 2025-01-14 | retail   | 16     | 29    | 2816.45 |
+| 2025-01-14 | web      | 33     | 62    | 5629.30 |
 
 ## Outputs
 After a successful run, the pipeline writes the following files:
