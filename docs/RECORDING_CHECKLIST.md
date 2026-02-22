@@ -6,6 +6,14 @@
 - [ ] First generate the example export: `python scripts/generate_orders_export.py`
 - [ ] Use this run command (Linux/macOS): `python src/run.py`
 - [ ] Use this run command (Windows PowerShell): `python .\src\run.py --input .\data\raw\orders_export.csv --outdir .\data\processed`
+- [ ] Demo commands (copy/paste as one block):
+
+  ```bash
+  python scripts/generate_orders_export.py
+  python src/run.py
+  ls -lh data/processed
+  ```
+
 - [ ] After run, open `data/processed/clean_orders.csv` and `data/processed/weekly_summary.csv`.
 - [ ] Then open `data/processed/top_products.csv` and `data/processed/weekly_report.xlsx`.
 - [ ] If mentioning Sheets publish, show README section with `--publish` and tab names `weekly_summary`, `top_products`.
