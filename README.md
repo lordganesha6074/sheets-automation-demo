@@ -1,17 +1,23 @@
 # Sheets Automation Demo
 
-This repository automates a weekly e-commerce/payment reporting workflow that teams often handle with manual spreadsheet copy/paste.
+Automates a weekly reporting workflow that’s often done by manual spreadsheet cleanup and copy/paste.
 
-Includes an example CSV export for demonstration.
+Run it on an export CSV to produce cleaned outputs, summaries, and a share-ready Excel report (and optionally publish to Google Sheets).
 
 **Demo video:** (coming soon)
 
-## Who hires this (real scenarios)
-- Ops or finance leads who need a reliable weekly order report without spending hours reconciling CSV exports by hand.
-- E-commerce managers who want manual copy/paste into Google Sheets replaced with a repeatable script.
-- Founders and small teams who need share-ready Excel plus optional Google Sheets tabs for stakeholder updates.
-- Teams that need fewer reporting errors (dates, currency parsing, duplicate orders) before numbers go to leadership.
-- Clients who value a clean, documented, maintainable workflow with fast communication and reliable support when requirements change.
+## Ideal for
+- Teams doing weekly/monthly reporting from CSV exports into Sheets/Excel.
+- Ops/finance who want a repeatable “export → run → report” workflow.
+- Founders/small teams who want fewer manual copy/paste steps and fewer errors.
+- Anyone needing clean data before sharing numbers with stakeholders.
+
+If your export format is different, I can adapt the mapping and rules quickly.
+
+If you need a new automation, I can build it from scratch (scripts, dashboards, APIs, Sheets workflows).
+
+## What this demo delivers
+You drop in a messy export CSV and get cleaned data, weekly summaries, and a share-ready Excel report, with an option to publish to Google Sheets tabs.
 
 ## Problem Statement
 Operations teams need a reliable weekly order report, but manual spreadsheet updates are time-consuming and error-prone. This project demonstrates a lightweight Python pipeline that standardizes order data and generates ready-to-share weekly outputs for stakeholders.
@@ -23,6 +29,7 @@ Common source exports this workflow is designed for:
 - WooCommerce orders export (CSV): filtered exports used for reporting/accounting.
 - Stripe Payments export (CSV): **Payments → Export**, then choose date range and columns.
 - Amazon Seller Central order reports (CSV): order/report downloads used by operations/accounting.
+- and similar CSV exports from invoicing tools, CRMs, fulfillment systems, ad platforms, etc.
 
 Expected/common columns (mapped by `src/run.py`):
 - `order_id` (or order id / id)
@@ -33,6 +40,8 @@ Expected/common columns (mapped by `src/run.py`):
 - `units` (quantity)
 - `price` (or unit_price / amount)
 - `revenue` (or total / total_revenue)
+
+The script supports column mapping and common messiness (dates, currency, duplicates). If your columns differ, adjust mapping or ask me to adapt it.
 
 Typical real-world messiness handled in weekly exports:
 - Mixed date formats that can produce unparseable timestamps.
@@ -65,8 +74,16 @@ Typical real-world messiness handled in weekly exports:
 
 Data-quality behavior includes quarantining dropped rows into `data/processed/quarantine_bad_rows.csv` (for example: unparseable dates, missing required fields, invalid amounts, duplicates, or filtered-out rows).
 
+## How to use it (quickstart)
+1. Export CSV from your system.
+2. Put it into `data/raw/` (or use `--input`).
+3. Run `python src/run.py` (optionally add dates / publish).
+4. Collect outputs in `data/processed/` (and optional Google Sheet tabs).
+
 ## Setup
-Python and pip are the actual runtime requirements. Recommended: use a virtual environment to avoid dependency conflicts.
+Python and pip are the actual runtime requirements. Recommended (strongly): use a virtual environment to avoid dependency conflicts.
+
+If you skip the venv, make sure dependencies from `requirements.txt` are installed in your Python environment.
 
 1. Create and activate a virtual environment:
    - macOS/Linux:
@@ -101,7 +118,7 @@ python src/run.py --no-paid-only
 ```
 
 ## Windows (PowerShell) Support
-Designed to run on Windows and Linux. Tested on Linux; Windows validation will be added via CI next. If you hit an issue, open a ticket and I’ll troubleshoot.
+Windows and Linux are supported. I test primarily on Linux; Windows validation will be added next (and we’ll troubleshoot any Windows-specific issues).
 
 ```powershell
 py -m venv .venv
