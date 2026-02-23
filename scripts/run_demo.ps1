@@ -17,7 +17,7 @@ if (-not (Test-Path .venv)) {
 
 . .\.venv\Scripts\Activate.ps1
 
-python -m pip install -r requirements.txt
+& $PythonCmd -m pip install -r requirements.txt
 & $PythonCmd .\scripts\generate_orders_export.py
 & $PythonCmd .\src\run.py
 
