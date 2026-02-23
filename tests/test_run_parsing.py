@@ -30,7 +30,8 @@ def test_to_numeric_currency_parses_and_coerces_invalid_values(raw: str, expecte
         assert actual == pytest.approx(expected)
 
 
-def test_order_date_parsing_coerces_invalid_dates_and_marks_quarantine_mask() -> None:
+def test_order_date_parsing_coerces_invalid_dates_and_marks_quarantine_mask(
+) -> None:
     order_date_col = "order_date"
     df = pd.DataFrame(
         {
