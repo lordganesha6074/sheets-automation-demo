@@ -257,6 +257,44 @@ def main(
         .sort_values(["week", "channel"])
     )
 
+    # KPI columns appended after base summary columns.
+    weekly_summary["aov"] = (
+        weekly_summary["revenue"].div(weekly_summary["orders"]).where(weekly_summary["orders"] != 0, 0)
+    )
+
+    wow_sorted = weekly_summary.sort_values(["channel", "week"]).copy()
+    prior_revenue = wow_sorted.groupby("channel")["revenue"].shift(1)
+    wow_sorted["revenue_wow_pct"] = (
+        wow_sorted["revenue"].sub(prior_revenue).div(prior_revenue).mul(100)
+    )
+    wow_sorted["revenue_wow_pct"] = wow_sorted["revenue_wow_pct"].where(
+        prior_revenue.notna() & prior_revenue.ne(0),
+        0,
+    )
+
+    weekly_total_revenue = wow_sorted.groupby("week")["revenue"].transform("sum")
+    wow_sorted["channel_revenue_share_pct"] = (
+        wow_sorted["revenue"].div(weekly_total_revenue).mul(100)
+    )
+    wow_sorted["channel_revenue_share_pct"] = wow_sorted["channel_revenue_share_pct"].where(
+        weekly_total_revenue.ne(0),
+        0,
+    )
+
+    weekly_summary = wow_sorted.sort_values(["week", "channel"])
+    weekly_summary = weekly_summary[
+        [
+            "week",
+            "channel",
+            "orders",
+            "units",
+            "revenue",
+            "aov",
+            "revenue_wow_pct",
+            "channel_revenue_share_pct",
+        ]
+    ]
+
     top_products = (
         df.groupby(product_col, dropna=False)
         .agg(
@@ -270,6 +308,9 @@ def main(
 
 
     weekly_summary["revenue"] = weekly_summary["revenue"].round(2)
+    weekly_summary["aov"] = weekly_summary["aov"].round(2)
+    weekly_summary["revenue_wow_pct"] = weekly_summary["revenue_wow_pct"].round(2)
+    weekly_summary["channel_revenue_share_pct"] = weekly_summary["channel_revenue_share_pct"].round(2)
     top_products["revenue"] = top_products["revenue"].round(2)
 
     weekly_summary.to_csv(weekly_path, index=False, float_format="%.2f")
