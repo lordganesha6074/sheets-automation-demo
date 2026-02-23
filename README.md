@@ -62,10 +62,11 @@ Preview metric columns in reporting outputs include:
 Documented from `src/run.py` behavior.
 
 - **Revenue field logic (trusted source with fallback):**
-  - If a revenue column exists, `_revenue` uses that value when present.
-  - If revenue is missing/invalid, fallback is `units × price`.
+  - If a revenue column exists, `_revenue` trusts that source value when present.
+  - If revenue is missing and a price column is available, fallback is `units × price`.
   - If no revenue column exists, revenue is computed from `units × price`.
-  - If inputs needed for computation are missing after coercion, fallback defaults to 0 via fill logic.
+  - Before aggregation, rows can be quarantined with `drop_reason=invalid_amount` when amount inputs are unusable for the active price/revenue-column setup.
+  - This means unusable amount inputs are not always silently zero-filled; affected rows may be excluded before `_revenue` is summed.
 
 - **Paid-only filter default:**
   - Default is `--paid-only` (enabled).
