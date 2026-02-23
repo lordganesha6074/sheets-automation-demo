@@ -169,16 +169,16 @@ GOOGLE_APPLICATION_CREDENTIALS=/secure/path/service-account.json python src/run.
 ## Preview / Outputs
 Preview format (values vary by input/date range):
 
-| week       | channel      | orders | units | revenue | aov   | revenue_wow_pct | channel_revenue_share_pct |
-|------------|--------------|--------|-------|---------|-------|-----------------|---------------------------|
-| 2024-12-31 | affiliate    | 9      | 16    | 1501.96 | 166.88| 2.4             | 10.9                      |
-| 2024-12-31 | marketplace  | 24     | 48    | 4296.33 | 179.01| 5.1             | 31.3                      |
-| 2024-12-31 | retail       | 15     | 27    | 2584.74 | 172.32| -1.2            | 18.8                      |
-| 2024-12-31 | web          | 31     | 59    | 5338.12 | 172.20| 3.7             | 39.0                      |
+| week       | channel      | orders | units | revenue | aov    | revenue_wow_pct | channel_revenue_share_pct |
+|------------|--------------|--------|-------|---------|--------|-----------------|---------------------------|
+| 2024-12-31 | affiliate    | 9      | 16    | 1501.96 | 166.88 | 2.4             | 10.9                      |
+| 2024-12-31 | marketplace  | 24     | 48    | 4296.33 | 179.01 | 5.1             | 31.3                      |
+| 2024-12-31 | retail       | 15     | 27    | 2584.74 | 172.32 | -1.2            | 18.8                      |
+| 2024-12-31 | web          | 31     | 59    | 5338.12 | 172.20 | 3.7             | 39.0                      |
 
 Rounding conventions for previews/reports:
 - Currency columns are rounded to 2 decimals.
-- Percent KPI columns are rounded to 1–2 decimals.
+- Percent KPI columns (`revenue_wow_pct`, `channel_revenue_share_pct`) are rounded to 1–2 decimals.
 
 After a successful run, expected files:
 - `data/processed/clean_orders.csv`
