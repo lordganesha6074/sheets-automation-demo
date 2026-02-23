@@ -180,9 +180,8 @@ After a successful run, expected files:
 - `data/processed/data_quality_report.json`
 
 Verified demo facts (included export generator path):
-- Example run (`scripts/generate_orders_export.py`): **210 rows in**
-- Typical outcome on that generated sample: **~12 dropped for unparseable dates**, **~157 after dedup**
-- Outputs generated: cleaned CSV, weekly summary CSV, top products CSV, Excel report, quarantine CSV, data-quality JSON
+- Example run (included export generator): 210 rows in → 12 dropped (bad dates) → 161 paid → 157 after dedup
+- Outputs generated in one run: weekly_summary + top_products + Excel report + quarantine + data quality report
 
 ## Publish to Google Sheets (optional)
 Publish `weekly_summary.csv` and `top_products.csv` to two tabs (`weekly_summary`, `top_products`).
