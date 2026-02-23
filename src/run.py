@@ -258,9 +258,9 @@ def main(
     )
 
     # KPI columns appended after base summary columns.
-    weekly_summary["aov"] = (
-        weekly_summary["revenue"].div(weekly_summary["orders"]).where(weekly_summary["orders"] != 0, 0)
-    )
+    orders = weekly_summary["orders"]
+    revenue = weekly_summary["revenue"]
+    weekly_summary["aov"] = revenue.div(orders).where(orders != 0, 0)
 
     wow_sorted = weekly_summary.sort_values(["channel", "week"]).copy()
     prior_revenue = wow_sorted.groupby("channel")["revenue"].shift(1)
@@ -310,7 +310,9 @@ def main(
     weekly_summary["revenue"] = weekly_summary["revenue"].round(2)
     weekly_summary["aov"] = weekly_summary["aov"].round(2)
     weekly_summary["revenue_wow_pct"] = weekly_summary["revenue_wow_pct"].round(2)
-    weekly_summary["channel_revenue_share_pct"] = weekly_summary["channel_revenue_share_pct"].round(2)
+    weekly_summary["channel_revenue_share_pct"] = weekly_summary[
+        "channel_revenue_share_pct"
+    ].round(2)
     top_products["revenue"] = top_products["revenue"].round(2)
 
     weekly_summary.to_csv(weekly_path, index=False, float_format="%.2f")
