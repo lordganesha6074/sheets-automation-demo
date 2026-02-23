@@ -1,84 +1,94 @@
 # Sheets Automation Demo
 
-Automates a weekly reporting workflow that’s often done by manual spreadsheet cleanup and copy/paste.
+Turn a messy weekly export into a clean, share-ready reporting pack in one command.
 
-Run it on an export CSV to produce cleaned outputs, summaries, and a share-ready Excel report (and optionally publish to Google Sheets).
+**Before → After:** manual spreadsheet cleanup, filters, pivots, and copy/paste → automated clean dataset, weekly summary, top products, Excel report, and optional Google Sheets publish.
 
-**Demo video:** link coming soon
+## Problem
+Weekly ops/finance reporting is often done manually in spreadsheets. That creates delay, rework, and reconciliation risk when source exports are messy (mixed dates, currency formatting, duplicates, status noise).
 
-See `docs/` for recording + outreach kit.
+This demo shows a repeatable `export → run → review → share` workflow using Python.
 
-## Ideal for
-- Teams doing weekly/monthly reporting from CSV exports into Sheets/Excel.
-- Ops/finance who want a repeatable “export → run → report” workflow.
-- Founders/small teams who want fewer manual copy/paste steps and fewer errors.
-- Anyone needing clean data before sharing numbers with stakeholders.
+## Impact (ROI)
+If reporting takes **H hours/week**, this pipeline turns it into a one-command run plus review.
 
-If your export format is different, I can adapt the mapping/rules quickly.
+Simple calculator:
 
-If you need a new automation, I can build it end-to-end (Sheets workflows, scripts, APIs, dashboards).
+- Weekly time saved = `H - R`
+- Weekly value saved = `(H - R) × hourly_rate`
+- Annual value saved = `weekly_value_saved × 52`
 
-## What this demo delivers
-You drop in a messy export CSV and get cleaned data, weekly summaries, and a share-ready Excel report, with an option to publish to Google Sheets tabs.
+Where:
+- `H` = current manual hours/week
+- `R` = run + review hours/week after automation
+- `hourly_rate` = loaded internal cost per hour
 
-## Problem Statement
-Operations teams need a reliable weekly order report, but manual spreadsheet updates are time-consuming and error-prone. This project demonstrates a lightweight Python pipeline that standardizes order data and generates ready-to-share weekly outputs for stakeholders.
+Example (illustrative only):
+- If `H = 2.0`, `R = 0.25`, and `hourly_rate = £25`:
+- Weekly value = `(2.0 - 0.25) × £25 = £43.75`
+- Annual value ≈ `£2,275`
 
-## Typical input data (what you export each week)
-Common source exports this workflow is designed for:
+Verified demo facts (included export generator path):
+- Example run (`scripts/generate_orders_export.py`): **210 rows in**
+- Typical outcome on that generated sample: **~12 dropped for unparseable dates**, **~157 after dedup**
+- Outputs generated: cleaned CSV, weekly summary CSV, top products CSV, Excel report, quarantine CSV, data-quality JSON
 
-- Shopify Orders export (CSV): **Orders → Export CSV**.
-- WooCommerce orders export (CSV): filtered exports used for reporting/accounting.
-- Stripe Payments export (CSV): **Payments → Export**, then choose date range and columns.
-- Amazon Seller Central order reports (CSV): order/report downloads used by operations/accounting.
-- and similar CSV exports from invoicing tools, CRMs, fulfillment systems, ad platforms, etc.
+## What you get
+- Cleaned dataset: `data/processed/clean_orders.csv`
+- Weekly summary: `data/processed/weekly_summary.csv`
+- Top products table: `data/processed/top_products.csv`
+- Share-ready Excel workbook: `data/processed/weekly_report.xlsx` (tabs: `Summary`, `Top Products`)
+- Quarantine file for excluded rows: `data/processed/quarantine_bad_rows.csv`
+- Run-level quality counters: `data/processed/data_quality_report.json`
+- Optional Google Sheet publish (tabs: `weekly_summary`, `top_products`)
 
-Expected/common columns (mapped by `src/run.py`):
-- `order_id` (or order id / id)
-- `order_date` (or order timestamp / order_datetime / date)
-- `status`
-- `channel` (or source / sales_channel)
-- `product`
-- `units` (quantity)
-- `price` (or unit_price / amount)
-- `revenue` (or total / total_revenue)
+## How it works (60s)
+1. Export CSV from your source system.
+2. Put it in `data/raw/` (or pass `--input`).
+3. Run `python src/run.py`.
+4. Review outputs in `data/processed/`.
+5. (Optional) Publish summary outputs to Google Sheets with `--publish`.
 
-The script supports column mapping and common messiness (dates, currency, duplicates). If your columns differ, adjust mapping or ask me to adapt it.
+## Reporting assumptions (scope clarity)
+Documented from `src/run.py` behavior.
 
-Typical real-world messiness handled in weekly exports:
-- Mixed date formats that can produce unparseable timestamps.
-- Currency symbols and formatting in amount fields (for example `$1,234.56`).
-- Duplicate order IDs, missing required values, or incomplete rows.
+- **Revenue field logic (trusted source with fallback):**
+  - If a revenue column exists, `_revenue` uses that value when present.
+  - If revenue is missing/invalid, fallback is `units × price`.
+  - If no revenue column exists, revenue is computed from `units × price`.
+  - If inputs needed for computation are missing after coercion, fallback defaults to 0 via fill logic.
 
-## What `src/run.py` Does
-`src/run.py` executes the full reporting flow end-to-end:
+- **Paid-only filter default:**
+  - Default is `--paid-only` (enabled).
+  - Status is normalized to lowercase/trimmed and only exact `paid` rows are kept.
+  - Non-paid statuses (for example `cancelled`, `refunded`, `unpaid`) are quarantined with `drop_reason=status_not_paid`.
+  - Use `--no-paid-only` to include all statuses.
 
-1. Loads raw order data.
-2. Cleans and standardizes fields (for example, dates and numeric values).
-3. Filters records for the reporting period.
-4. Runs weekly aggregations to produce summary metrics.
-5. Identifies top-performing products.
-6. Exports CSV outputs and a formatted Excel report for distribution.
+- **Date used for reporting:**
+  - Aggregation uses `order_date` (mapped from aliases like `order timestamp`, `order_datetime`, `date`).
+  - Payment date is not used for time bucketing in this demo.
 
-## What you get (deliverables)
-- [x] Cleaned dataset: `clean_orders.csv`
-- [x] Weekly summary: `weekly_summary.csv`
-- [x] Top products: `top_products.csv`
-- [x] Share-ready Excel report: `weekly_report.xlsx`
-- [x] Optional Google Sheet with 2 tabs: `weekly_summary`, `top_products`
+- **Week definition:**
+  - Week key is built with `to_period("W-MON").start_time`.
+  - This means buckets are **Tuesday through Monday**, labeled by the **week start date** (Tuesday) in `YYYY-MM-DD`.
 
-## How it works (in 60 seconds)
-1. Export order/payment CSVs from your platforms.
-2. Place the file in `data/raw/` (or pass a custom file path with `--input`).
-3. Run the script.
-4. Get cleaned outputs in `data/processed/`.
-5. Optionally publish summary tabs to Google Sheets.
+- **Dedup rule (deterministic):**
+  - Dedup key: `order_id`.
+  - Rows are stable-sorted by `order_date` ascending, then `_source_row` ascending.
+  - Keep `last` per `order_id` (latest date wins; if same date, later source row wins).
+  - Dropped duplicates are quarantined with `drop_reason=duplicate_order_id`.
 
-Data-quality behavior includes quarantining dropped rows into `data/processed/quarantine_bad_rows.csv` (for example: unparseable dates, missing required fields, invalid amounts, duplicates, or filtered-out rows).
+## Controls & auditability
+- Raw input file is read as-is; pipeline outputs are written to `data/processed/`.
+- Run counters are logged and saved (`raw_rows`, dropped/filtered counts, dedup count, final rows).
+- Every excluded row can be inspected in `quarantine_bad_rows.csv` with an explicit `drop_reason`.
+- `data_quality_report.json` includes count metrics and run timestamp.
+- Dedup is deterministic (same input → same dedup outcome).
+- `--verbose` enables debug logging for reconciliation and troubleshooting.
 
-## How to use it (quickstart)
-1. (Optional) Generate an example export:
-   - Linux/macOS:
+## Quickstart
+1. (Optional) Generate example input:
+   - macOS/Linux:
      ```bash
      python scripts/generate_orders_export.py
      ```
@@ -90,13 +100,9 @@ Data-quality behavior includes quarantining dropped rows into `data/processed/qu
    ```bash
    python src/run.py
    ```
-3. Collect outputs in `data/processed/` (and optional Google Sheet tabs).
+3. Review outputs in `data/processed/`.
 
 ## Setup
-Python and pip are the actual runtime requirements. Recommended (strongly): use a virtual environment to avoid dependency conflicts.
-
-If you skip the venv, make sure dependencies from `requirements.txt` are installed in your Python environment.
-
 1. Create and activate a virtual environment:
    - macOS/Linux:
      ```bash
@@ -114,7 +120,7 @@ If you skip the venv, make sure dependencies from `requirements.txt` are install
    ```
 
 ## Run
-Execute the pipeline with defaults:
+Default run:
 
 ```bash
 python src/run.py
@@ -129,8 +135,8 @@ python src/run.py --start-date 2024-01-01 --end-date 2024-03-31
 python src/run.py --no-paid-only
 ```
 
-## Windows (PowerShell) Support
-Use the commands below to run the pipeline on Windows (PowerShell).
+## Windows support
+Supported path (PowerShell):
 
 ```powershell
 py -m venv .venv
@@ -139,59 +145,65 @@ pip install -r requirements.txt
 python .\src\run.py --input .\data\raw\orders_export.csv --outdir .\data\processed
 ```
 
-Notes:
-- On Windows, prefer `py -m venv .venv`.
-- Use Windows-style paths (`.\data\raw\...`) in PowerShell; forward slashes usually work, but backslashes are the safest default.
+## Publishing / Scheduling
 
-## Scheduling (optional)
-- Linux: use `cron` to run `python src/run.py` weekly and write logs to a file.
-- Windows: use Task Scheduler to run `python .\src\run.py` on a weekly trigger.
+### Publish to Google Sheets (optional)
+Publish `weekly_summary.csv` and `top_products.csv` to two tabs (`weekly_summary`, `top_products`).
 
-## Preview
-
-Preview table below shows example output format; generated results vary by your exports and date range.
-
-| week       | channel  | orders | units | revenue |
-|------------|----------|--------|-------|---------|
-| 2024-12-31 | affiliate | 9      | 16    | 1501.96 |
-| 2024-12-31 | marketplace | 24   | 48    | 4296.33 |
-| 2024-12-31 | retail   | 15     | 27    | 2584.74 |
-| 2024-12-31 | web      | 31     | 59    | 5338.12 |
-| 2025-01-07 | affiliate | 11     | 20    | 1844.58 |
-| 2025-01-07 | marketplace | 28   | 54    | 4867.40 |
-| 2025-01-07 | retail   | 17     | 31    | 2960.21 |
-| 2025-01-07 | web      | 34     | 64    | 5792.85 |
-| 2025-01-14 | affiliate | 10     | 18    | 1718.09 |
-| 2025-01-14 | marketplace | 26   | 50    | 4623.77 |
-| 2025-01-14 | retail   | 16     | 29    | 2816.45 |
-| 2025-01-14 | web      | 33     | 62    | 5629.30 |
-
-## Outputs
-After a successful run, the pipeline writes the following files:
-
-- `data/processed/clean_orders.csv`
-- `data/processed/weekly_summary.csv`
-- `data/processed/top_products.csv`
-- `data/processed/weekly_report.xlsx` (tabs: `Summary`, `Top Products`)
-- `data/processed/quarantine_bad_rows.csv`
-- `data/processed/data_quality_report.json` (if generated)
-
-## Publish to Google Sheets (optional)
-
-You can optionally publish `weekly_summary.csv` and `top_products.csv` into a Google Sheet as separate tabs (`weekly_summary`, `top_products`).
-
-1. Create a Google Cloud service account and enable Google Sheets API.
-2. Download the service account JSON key to a local path (for example: `/secure/path/service-account.json`).
-3. Share the destination Google Sheet with the service account email, or allow the script to create a new sheet.
+1. Create a Google Cloud service account and enable the Google Sheets API.
+2. Download the service-account JSON key to a secure local path.
+3. Share your destination sheet with the service-account email (or let script create a sheet).
 4. Set environment variables:
    - Required: `GOOGLE_APPLICATION_CREDENTIALS=/secure/path/service-account.json`
-   - Optional: `GOOGLE_SHEET_ID=<existing_sheet_id>` (if omitted, a new sheet is created)
-5. Run publishing:
+   - Optional: `GOOGLE_SHEET_ID=<existing_sheet_id>`
+5. Run:
 
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=/secure/path/service-account.json python src/run.py --publish
 ```
 
-The command prints the Google Sheet ID and URL when publish succeeds.
+### Schedule weekly runs (optional)
+- Linux: cron job running `python src/run.py` (with logs redirected).
+- Windows: Task Scheduler job running `python .\src\run.py` on a weekly trigger.
 
-**Security note:** Never commit service account credential JSON files or secrets to source control. Keep credentials outside the repository.
+## Preview / Outputs
+Preview format (values vary by input/date range):
+
+| week       | channel      | orders | units | revenue |
+|------------|--------------|--------|-------|---------|
+| 2024-12-31 | affiliate    | 9      | 16    | 1501.96 |
+| 2024-12-31 | marketplace  | 24     | 48    | 4296.33 |
+| 2024-12-31 | retail       | 15     | 27    | 2584.74 |
+| 2024-12-31 | web          | 31     | 59    | 5338.12 |
+
+After a successful run, expected files:
+- `data/processed/clean_orders.csv`
+- `data/processed/weekly_summary.csv`
+- `data/processed/top_products.csv`
+- `data/processed/weekly_report.xlsx`
+- `data/processed/quarantine_bad_rows.csv`
+- `data/processed/data_quality_report.json`
+
+## Technical notes
+- Python version in CI: **3.11** (`.github/workflows/ci.yml`)
+- Core libraries: `pandas`, `python-dateutil`, `openpyxl`
+- Optional publish libraries: `gspread`, `google-auth`
+- Tests exist in `tests/` (pytest) and CI exists via GitHub Actions (`.github/workflows/ci.yml`)
+
+## Typical input data (reference)
+Common source exports this workflow is designed for:
+- Shopify Orders export (CSV)
+- WooCommerce orders export (CSV)
+- Stripe Payments export (CSV)
+- Amazon Seller Central order reports (CSV)
+- Similar CSV exports from invoicing/CRM/fulfillment systems
+
+Expected/common mapped fields:
+- `order_id` (or `order id` / `id`)
+- `order_date` (or `order timestamp` / `order_datetime` / `date`)
+- `status`
+- `channel` (or `source` / `sales_channel`)
+- `product`
+- `units` (or `quantity` / `qty`)
+- `price` (or `unit_price` / `amount`)
+- `revenue` (or `total` / `total_revenue`)
