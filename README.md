@@ -1,7 +1,7 @@
 # Sheets Automation Demo
 
 Turn a messy weekly export into a clean, share-ready reporting pack in one command.
-This demo shows a repeatable `export → run → review → share` workflow using Python.
+This project shows a repeatable `export → run → review → share` workflow using Python.
 
 ## Before → After
 Manual spreadsheet cleanup, filters, pivots, and copy/paste become an automated clean dataset, weekly summary, top products, Excel report, and optional Google Sheets publish.
@@ -76,7 +76,7 @@ Documented from `src/run.py` behavior.
 
 - **Date used for reporting:**
   - Aggregation uses `order_date` (mapped from aliases like `order timestamp`, `order_datetime`, `date`).
-  - Payment date is not used for time bucketing in this demo.
+  - Payment date is not used for time bucketing in this workflow.
 
 - **Week definition:**
   - Week key is built with `to_period("W-MON").start_time`.
@@ -98,6 +98,7 @@ Documented from `src/run.py` behavior.
 
 ## Quickstart
 1. (Optional) Generate example input:
+   - Includes an example export generated with realistic edge cases — replace with your real export.
    - macOS/Linux:
      ```bash
      python scripts/generate_orders_export.py
@@ -178,8 +179,8 @@ After a successful run, expected files:
 - `data/processed/quarantine_bad_rows.csv`
 - `data/processed/data_quality_report.json`
 
-Verified demo facts (included export generator path):
-- Example run (included export generator): 210 rows in → 12 dropped (bad dates) → 161 paid → 157 after dedup
+Reference run metrics (using the included export generator):
+- Reference run (included export generator): 210 rows in → 12 dropped (bad dates) → 161 paid → 157 after dedup
 - Outputs generated in one run: weekly_summary + top_products + Excel report + quarantine + data quality report
 
 ## Publish to Google Sheets (optional)
