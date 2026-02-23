@@ -86,7 +86,10 @@ def sample_orders_csv(tmp_path: Path) -> Path:
     return input_csv
 
 
-def test_main_generates_kpi_columns_and_expected_values(sample_orders_csv: Path, tmp_path: Path) -> None:
+def test_main_generates_kpi_columns_and_expected_values(
+    sample_orders_csv: Path,
+    tmp_path: Path,
+) -> None:
     outdir = tmp_path / "out"
 
     main(
