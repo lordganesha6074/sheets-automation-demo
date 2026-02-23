@@ -26,14 +26,12 @@ Example (illustrative only):
 - Annual value ≈ `£2,275`
 
 ## Who this is for
-Weekly ops/finance reporting teams that currently do manual spreadsheet reconciliation and cleanup from messy source exports (mixed dates, currency formatting, duplicates, status noise).
+Practical fit for teams that need dependable reporting from recurring data exports, including:
 
-Common source exports this workflow is designed for:
-- Shopify Orders export (CSV)
-- WooCommerce orders export (CSV)
-- Stripe Payments export (CSV)
-- Amazon Seller Central order reports (CSV)
-- Similar CSV exports from invoicing/CRM/fulfillment systems
+- E-commerce operators exporting from Shopify, WooCommerce, Amazon Seller Central, Stripe, or similar platforms.
+- Ops/finance teams producing weekly reporting packs and KPI rollups.
+- Agencies consolidating multiple client exports into consistent deliverables.
+- Any business exporting CSV/Excel files and needing repeatable reporting with less manual cleanup.
 
 ## What you get (Deliverables)
 - Cleaned dataset: `data/processed/clean_orders.csv`
