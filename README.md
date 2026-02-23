@@ -97,6 +97,17 @@ Documented from `src/run.py` behavior.
 - `--verbose` enables debug logging for reconciliation and troubleshooting.
 
 ## Quickstart
+Fast path (recommended):
+- macOS/Linux:
+  ```bash
+  ./scripts/run_demo.sh
+  ```
+- Windows (PowerShell):
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File .\scripts\run_demo.ps1
+  ```
+
+Manual path (for transparency):
 1. (Optional) Generate example input:
    - Includes an example export generated with realistic edge cases — replace with your real export.
    - macOS/Linux:
