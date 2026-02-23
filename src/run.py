@@ -322,8 +322,22 @@ def main(
 
         summary_sheet = writer.sheets["Summary"]
         summary_revenue_col = weekly_summary.columns.get_loc("revenue") + 1
+        summary_aov_col = weekly_summary.columns.get_loc("aov") + 1
+        summary_revenue_wow_pct_col = weekly_summary.columns.get_loc("revenue_wow_pct") + 1
+        summary_channel_revenue_share_pct_col = (
+            weekly_summary.columns.get_loc("channel_revenue_share_pct") + 1
+        )
         for row_idx in range(2, len(weekly_summary) + 2):
             summary_sheet.cell(row=row_idx, column=summary_revenue_col).number_format = "0.00"
+            summary_sheet.cell(row=row_idx, column=summary_aov_col).number_format = "0.00"
+            summary_sheet.cell(
+                row=row_idx,
+                column=summary_revenue_wow_pct_col,
+            ).number_format = "0.00"
+            summary_sheet.cell(
+                row=row_idx,
+                column=summary_channel_revenue_share_pct_col,
+            ).number_format = "0.00"
 
         top_products_sheet = writer.sheets["Top Products"]
         top_products_revenue_col = top_products.columns.get_loc("revenue") + 1
