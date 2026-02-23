@@ -156,7 +156,7 @@ python .\src\run.py --input .\data\raw\orders_export.csv --outdir .\data\process
 ```
 
 ## Preview
-Preview format (values vary by input/date range):
+Preview format (values vary by input/date range). Context columns remain `week` and `channel`; KPI columns are exactly `orders, units, revenue, aov, revenue_wow_pct, channel_revenue_share_pct`:
 
 | week       | channel      | orders | units | revenue | aov    | revenue_wow_pct | channel_revenue_share_pct |
 |------------|--------------|--------|-------|---------|--------|-----------------|---------------------------|
@@ -165,7 +165,7 @@ Preview format (values vary by input/date range):
 | 2024-12-31 | retail       | 15     | 27    | 2584.74 | 172.32 | -1.20           | 18.80                     |
 | 2024-12-31 | web          | 31     | 59    | 5338.12 | 172.20 | 3.70            | 39.00                     |
 
-Rounding conventions for previews/reports:
+Rounding conventions for previews/reports (matching `weekly_summary.csv` export formatting):
 - Currency columns are rounded to 2 decimals.
 - Percent KPI columns (`revenue_wow_pct`, `channel_revenue_share_pct`) are rounded to 2 decimals.
 
