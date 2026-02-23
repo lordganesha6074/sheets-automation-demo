@@ -1,13 +1,10 @@
 # Sheets Automation Demo
 
 Turn a messy weekly export into a clean, share-ready reporting pack in one command.
-
-**Before → After:** manual spreadsheet cleanup, filters, pivots, and copy/paste → automated clean dataset, weekly summary, top products, Excel report, and optional Google Sheets publish.
-
-## Problem
-Weekly ops/finance reporting is often done manually in spreadsheets. That creates delay, rework, and reconciliation risk when source exports are messy (mixed dates, currency formatting, duplicates, status noise).
-
 This demo shows a repeatable `export → run → review → share` workflow using Python.
+
+## Before → After
+Manual spreadsheet cleanup, filters, pivots, and copy/paste become an automated clean dataset, weekly summary, top products, Excel report, and optional Google Sheets publish.
 
 ## Impact (ROI)
 If reporting takes **H hours/week**, this pipeline turns it into a one-command run plus review.
@@ -28,12 +25,17 @@ Example (illustrative only):
 - Weekly value = `(2.0 - 0.25) × £25 = £43.75`
 - Annual value ≈ `£2,275`
 
-Verified demo facts (included export generator path):
-- Example run (`scripts/generate_orders_export.py`): **210 rows in**
-- Typical outcome on that generated sample: **~12 dropped for unparseable dates**, **~157 after dedup**
-- Outputs generated: cleaned CSV, weekly summary CSV, top products CSV, Excel report, quarantine CSV, data-quality JSON
+## Who this is for
+Weekly ops/finance reporting teams that currently do manual spreadsheet reconciliation and cleanup from messy source exports (mixed dates, currency formatting, duplicates, status noise).
 
-## What you get
+Common source exports this workflow is designed for:
+- Shopify Orders export (CSV)
+- WooCommerce orders export (CSV)
+- Stripe Payments export (CSV)
+- Amazon Seller Central order reports (CSV)
+- Similar CSV exports from invoicing/CRM/fulfillment systems
+
+## What you get (Deliverables)
 - Cleaned dataset: `data/processed/clean_orders.csv`
 - Weekly summary: `data/processed/weekly_summary.csv`
 - Top products table: `data/processed/top_products.csv`
@@ -42,14 +44,23 @@ Verified demo facts (included export generator path):
 - Run-level quality counters: `data/processed/data_quality_report.json`
 - Optional Google Sheet publish (tabs: `weekly_summary`, `top_products`)
 
-## How it works (60s)
+## Example metrics generated
+Preview metric columns in reporting outputs include:
+- `orders`
+- `units`
+- `revenue`
+- `aov`
+- `revenue_wow_pct`
+- `channel_revenue_share_pct`
+
+## How it works (60 seconds)
 1. Export CSV from your source system.
 2. Put it in `data/raw/` (or pass `--input`).
 3. Run `python src/run.py`.
 4. Review outputs in `data/processed/`.
 5. (Optional) Publish summary outputs to Google Sheets with `--publish`.
 
-## Reporting assumptions (scope clarity)
+## Reporting assumptions (Scope clarity)
 Documented from `src/run.py` behavior.
 
 - **Revenue field logic (trusted source with fallback):**
@@ -135,8 +146,8 @@ python src/run.py --start-date 2024-01-01 --end-date 2024-03-31
 python src/run.py --no-paid-only
 ```
 
-## Windows support
-Supported path (PowerShell):
+## Windows (PowerShell)
+Supported path:
 
 ```powershell
 py -m venv .venv
@@ -145,9 +156,35 @@ pip install -r requirements.txt
 python .\src\run.py --input .\data\raw\orders_export.csv --outdir .\data\processed
 ```
 
-## Publishing / Scheduling
+## Preview
+Preview format (values vary by input/date range):
 
-### Publish to Google Sheets (optional)
+| week       | channel      | orders | units | revenue | aov    | revenue_wow_pct | channel_revenue_share_pct |
+|------------|--------------|--------|-------|---------|--------|-----------------|---------------------------|
+| 2024-12-31 | affiliate    | 9      | 16    | 1501.96 | 166.88 | 2.4             | 10.9                      |
+| 2024-12-31 | marketplace  | 24     | 48    | 4296.33 | 179.01 | 5.1             | 31.3                      |
+| 2024-12-31 | retail       | 15     | 27    | 2584.74 | 172.32 | -1.2            | 18.8                      |
+| 2024-12-31 | web          | 31     | 59    | 5338.12 | 172.20 | 3.7             | 39.0                      |
+
+Rounding conventions for previews/reports:
+- Currency columns are rounded to 2 decimals.
+- Percent KPI columns (`revenue_wow_pct`, `channel_revenue_share_pct`) are rounded to 1–2 decimals.
+
+## Outputs
+After a successful run, expected files:
+- `data/processed/clean_orders.csv`
+- `data/processed/weekly_summary.csv`
+- `data/processed/top_products.csv`
+- `data/processed/weekly_report.xlsx`
+- `data/processed/quarantine_bad_rows.csv`
+- `data/processed/data_quality_report.json`
+
+Verified demo facts (included export generator path):
+- Example run (`scripts/generate_orders_export.py`): **210 rows in**
+- Typical outcome on that generated sample: **~12 dropped for unparseable dates**, **~157 after dedup**
+- Outputs generated: cleaned CSV, weekly summary CSV, top products CSV, Excel report, quarantine CSV, data-quality JSON
+
+## Publish to Google Sheets (optional)
 Publish `weekly_summary.csv` and `top_products.csv` to two tabs (`weekly_summary`, `top_products`).
 
 1. Create a Google Cloud service account and enable the Google Sheets API.
@@ -162,45 +199,15 @@ Publish `weekly_summary.csv` and `top_products.csv` to two tabs (`weekly_summary
 GOOGLE_APPLICATION_CREDENTIALS=/secure/path/service-account.json python src/run.py --publish
 ```
 
-### Schedule weekly runs (optional)
+## Scheduling (optional)
 - Linux: cron job running `python src/run.py` (with logs redirected).
 - Windows: Task Scheduler job running `python .\src\run.py` on a weekly trigger.
-
-## Preview / Outputs
-Preview format (values vary by input/date range):
-
-| week       | channel      | orders | units | revenue | aov    | revenue_wow_pct | channel_revenue_share_pct |
-|------------|--------------|--------|-------|---------|--------|-----------------|---------------------------|
-| 2024-12-31 | affiliate    | 9      | 16    | 1501.96 | 166.88 | 2.4             | 10.9                      |
-| 2024-12-31 | marketplace  | 24     | 48    | 4296.33 | 179.01 | 5.1             | 31.3                      |
-| 2024-12-31 | retail       | 15     | 27    | 2584.74 | 172.32 | -1.2            | 18.8                      |
-| 2024-12-31 | web          | 31     | 59    | 5338.12 | 172.20 | 3.7             | 39.0                      |
-
-Rounding conventions for previews/reports:
-- Currency columns are rounded to 2 decimals.
-- Percent KPI columns (`revenue_wow_pct`, `channel_revenue_share_pct`) are rounded to 1–2 decimals.
-
-After a successful run, expected files:
-- `data/processed/clean_orders.csv`
-- `data/processed/weekly_summary.csv`
-- `data/processed/top_products.csv`
-- `data/processed/weekly_report.xlsx`
-- `data/processed/quarantine_bad_rows.csv`
-- `data/processed/data_quality_report.json`
 
 ## Technical notes
 - Python version in CI: **3.11** (`.github/workflows/ci.yml`)
 - Core libraries: `pandas`, `python-dateutil`, `openpyxl`
 - Optional publish libraries: `gspread`, `google-auth`
 - Tests exist in `tests/` (pytest) and CI exists via GitHub Actions (`.github/workflows/ci.yml`)
-
-## Typical input data (reference)
-Common source exports this workflow is designed for:
-- Shopify Orders export (CSV)
-- WooCommerce orders export (CSV)
-- Stripe Payments export (CSV)
-- Amazon Seller Central order reports (CSV)
-- Similar CSV exports from invoicing/CRM/fulfillment systems
 
 Expected/common mapped fields:
 - `order_id` (or `order id` / `id`)
