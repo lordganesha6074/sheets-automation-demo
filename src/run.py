@@ -8,12 +8,68 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.utils import get_column_letter
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_PATH = ROOT / "data" / "raw" / "orders_export.csv"
 DEFAULT_OUTPUT_DIR = ROOT / "data" / "processed"
 
 LOGGER = logging.getLogger(__name__)
+
+HEADER_FILL = PatternFill(fill_type="solid", start_color="D9E1F2", end_color="D9E1F2")
+THIN_BORDER = Border(
+    left=Side(style="thin", color="D9D9D9"),
+    right=Side(style="thin", color="D9D9D9"),
+    top=Side(style="thin", color="D9D9D9"),
+    bottom=Side(style="thin", color="D9D9D9"),
+)
+
+
+def format_sheet(
+    sheet,
+    columns: list[str],
+    row_count: int,
+    widths: dict[str, int],
+    currency_columns: set[str],
+    integer_columns: set[str],
+    percent_columns: set[str],
+    right_align_columns: set[str],
+) -> None:
+    max_col = len(columns)
+    max_row = row_count + 1
+
+    sheet.freeze_panes = "A2"
+    if row_count > 0:
+        sheet.auto_filter.ref = f"A1:{get_column_letter(max_col)}{max_row}"
+    else:
+        sheet.auto_filter.ref = f"A1:{get_column_letter(max_col)}1"
+
+    for col_idx, column_name in enumerate(columns, start=1):
+        cell = sheet.cell(row=1, column=col_idx)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.fill = HEADER_FILL
+        cell.border = THIN_BORDER
+
+        sheet.column_dimensions[get_column_letter(col_idx)].width = widths.get(column_name, 14)
+
+    for row_idx in range(2, max_row + 1):
+        for col_idx, column_name in enumerate(columns, start=1):
+            cell = sheet.cell(row=row_idx, column=col_idx)
+            cell.border = THIN_BORDER
+
+            if column_name in currency_columns:
+                cell.number_format = "#,##0.00"
+            elif column_name in integer_columns:
+                cell.number_format = "0"
+            elif column_name in percent_columns:
+                cell.number_format = '0.00"%"'
+
+            if column_name in right_align_columns:
+                cell.alignment = Alignment(horizontal="right", vertical="center")
+            else:
+                cell.alignment = Alignment(horizontal="left", vertical="center")
 
 
 def find_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
@@ -323,31 +379,44 @@ def main(
         top_products.to_excel(writer, sheet_name="Top Products", index=False)
 
         summary_sheet = writer.sheets["Summary"]
-        summary_revenue_col = weekly_summary.columns.get_loc("revenue") + 1
-        summary_aov_col = weekly_summary.columns.get_loc("aov") + 1
-        summary_revenue_wow_pct_col = weekly_summary.columns.get_loc("revenue_wow_pct") + 1
-        summary_channel_revenue_share_pct_col = (
-            weekly_summary.columns.get_loc("channel_revenue_share_pct") + 1
+        format_sheet(
+            sheet=summary_sheet,
+            columns=weekly_summary.columns.tolist(),
+            row_count=len(weekly_summary),
+            widths={
+                "week": 12,
+                "channel": 16,
+                "orders": 10,
+                "units": 10,
+                "revenue": 14,
+                "aov": 12,
+                "revenue_wow_pct": 14,
+                "channel_revenue_share_pct": 18,
+            },
+            currency_columns={"revenue", "aov"},
+            integer_columns={"orders", "units"},
+            percent_columns={"revenue_wow_pct", "channel_revenue_share_pct"},
+            right_align_columns={
+                "orders",
+                "units",
+                "revenue",
+                "aov",
+                "revenue_wow_pct",
+                "channel_revenue_share_pct",
+            },
         )
-        for row_idx in range(2, len(weekly_summary) + 2):
-            summary_sheet.cell(row=row_idx, column=summary_revenue_col).number_format = "0.00"
-            summary_sheet.cell(row=row_idx, column=summary_aov_col).number_format = "0.00"
-            summary_sheet.cell(
-                row=row_idx,
-                column=summary_revenue_wow_pct_col,
-            ).number_format = "0.00"
-            summary_sheet.cell(
-                row=row_idx,
-                column=summary_channel_revenue_share_pct_col,
-            ).number_format = "0.00"
 
         top_products_sheet = writer.sheets["Top Products"]
-        top_products_revenue_col = top_products.columns.get_loc("revenue") + 1
-        for row_idx in range(2, len(top_products) + 2):
-            top_cell = top_products_sheet.cell(
-                row=row_idx, column=top_products_revenue_col
-            )
-            top_cell.number_format = "0.00"
+        format_sheet(
+            sheet=top_products_sheet,
+            columns=top_products.columns.tolist(),
+            row_count=len(top_products),
+            widths={"product": 32, "units": 10, "revenue": 14},
+            currency_columns={"revenue"},
+            integer_columns={"units"},
+            percent_columns=set(),
+            right_align_columns={"units", "revenue"},
+        )
 
     quarantine_df = (
         pd.concat(dropped_rows, ignore_index=True)
