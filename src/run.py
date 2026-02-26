@@ -30,11 +30,13 @@ def format_sheet(
     sheet,
     columns: list[str],
     row_count: int,
-    widths: dict[str, int],
     currency_columns: set[str],
     integer_columns: set[str],
     percent_columns: set[str],
     right_align_columns: set[str],
+    min_column_width: int = 10,
+    max_column_width: int = 45,
+    column_padding: int = 2,
 ) -> None:
     max_col = len(columns)
     max_row = row_count + 1
@@ -52,7 +54,15 @@ def format_sheet(
         cell.fill = HEADER_FILL
         cell.border = THIN_BORDER
 
-        sheet.column_dimensions[get_column_letter(col_idx)].width = widths.get(column_name, 14)
+        max_display_length = len(str(column_name))
+        for row_idx in range(2, max_row + 1):
+            value = sheet.cell(row=row_idx, column=col_idx).value
+            value_length = len(str(value)) if value is not None else 0
+            max_display_length = max(max_display_length, value_length)
+
+        dynamic_width = max_display_length + column_padding
+        bounded_width = max(min_column_width, min(dynamic_width, max_column_width))
+        sheet.column_dimensions[get_column_letter(col_idx)].width = bounded_width
 
     for row_idx in range(2, max_row + 1):
         for col_idx, column_name in enumerate(columns, start=1):
@@ -411,16 +421,6 @@ def main(
             sheet=summary_sheet,
             columns=weekly_summary.columns.tolist(),
             row_count=len(weekly_summary),
-            widths={
-                "week": 12,
-                "channel": 16,
-                "orders": 10,
-                "units": 10,
-                "revenue": 14,
-                "aov": 12,
-                "revenue_wow_pct": 14,
-                "channel_revenue_share_pct": 18,
-            },
             currency_columns={"revenue", "aov"},
             integer_columns={"orders", "units"},
             percent_columns={"revenue_wow_pct", "channel_revenue_share_pct"},
@@ -439,7 +439,6 @@ def main(
             sheet=top_products_sheet,
             columns=top_products.columns.tolist(),
             row_count=len(top_products),
-            widths={"product": 32, "units": 10, "revenue": 14},
             currency_columns={"revenue"},
             integer_columns={"units"},
             percent_columns=set(),
