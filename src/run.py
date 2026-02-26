@@ -298,7 +298,35 @@ def main(
     clean_df = df.copy()
     clean_df[order_date_col] = clean_df[order_date_col].dt.strftime("%Y-%m-%d")
     clean_df = clean_df.drop(columns=["_source_row"])
-    clean_df.to_csv(clean_path, index=False)
+
+    money_like_columns: set[str] = set()
+    if price_col and price_col in clean_df.columns:
+        money_like_columns.add(price_col)
+    if revenue_col and revenue_col in clean_df.columns:
+        money_like_columns.add(revenue_col)
+    if "_revenue" in clean_df.columns:
+        money_like_columns.add("_revenue")
+
+    stakeholder_money_fields = {
+        "price",
+        "unit_price",
+        "amount",
+        "revenue",
+        "total_revenue",
+        "gross_revenue",
+        "net_revenue",
+        "aov",
+        "avg_order_value",
+    }
+    for column in clean_df.columns:
+        if column.lower() in stakeholder_money_fields:
+            money_like_columns.add(column)
+
+    for column in money_like_columns:
+        if pd.api.types.is_numeric_dtype(clean_df[column]):
+            clean_df[column] = clean_df[column].round(2)
+
+    clean_df.to_csv(clean_path, index=False, float_format="%.2f")
 
     weekly_summary = (
         df.groupby(["week", channel_col], dropna=False)

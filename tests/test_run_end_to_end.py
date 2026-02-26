@@ -101,6 +101,7 @@ def test_main_generates_kpi_columns_and_expected_values(
 
     weekly_path = outdir / "weekly_summary.csv"
     weekly = pd.read_csv(weekly_path)
+    clean_path = outdir / "clean_orders.csv"
 
     assert list(weekly.columns) == [
         "week",
@@ -138,6 +139,16 @@ def test_main_generates_kpi_columns_and_expected_values(
     raw_csv = weekly_path.read_text(encoding="utf-8")
     assert "806.4000000000001" not in raw_csv
     assert re.search(r"\d+\.\d{3,}", raw_csv) is None
+
+    clean_csv = clean_path.read_text(encoding="utf-8")
+    assert "300.00000000000006" not in clean_csv
+    assert re.search(r"\d+\.\d{3,}", clean_csv) is None
+
+    clean = pd.read_csv(clean_path)
+    money_columns = [column for column in ["price", "_revenue"] if column in clean.columns]
+    assert money_columns
+    for column in money_columns:
+        assert clean[column].map(lambda value: f"{value:.2f}").str.match(r"-?\d+\.\d{2}").all()
 
     # Excel Summary tab schema/value checks.
     workbook = load_workbook(outdir / "weekly_report.xlsx", data_only=True)
