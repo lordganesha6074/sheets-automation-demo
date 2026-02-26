@@ -169,3 +169,18 @@ def test_main_generates_kpi_columns_and_expected_values(
     assert first_data_row[0] == "2024-01-02"
     assert first_data_row[1] == "Email"
     assert first_data_row[5] == pytest.approx(150.0)
+
+    # Workbook usability traits should be configured on output sheets.
+    assert sheet.freeze_panes == "A2"
+    assert sheet.auto_filter.ref == f"A1:H{sheet.max_row}"
+
+    column_widths = {
+        column: sheet.column_dimensions[letter].width
+        for letter, column in zip("ABCDEFGH", header)
+    }
+    assert all(width is not None for width in column_widths.values())
+    assert all(10 <= width <= 45 for width in column_widths.values())
+
+    # Long headers should have a non-default width driven by content sizing.
+    assert column_widths["revenue_wow_pct"] > 14
+    assert column_widths["channel_revenue_share_pct"] > 14
