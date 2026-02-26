@@ -190,6 +190,11 @@ After a successful run, expected files:
 - `data/processed/quarantine_bad_rows.csv`
 - `data/processed/data_quality_report.json`
 
+### Viewing CSV outputs in Excel/LibreOffice
+- All CSV outputs are comma-delimited.
+- In LibreOffice's import dialog, select **Comma** only.
+- Uncheck **Tab** and **Semicolon** to avoid split columns.
+
 Reference run metrics (using the included export generator):
 - Reference run (included export generator): 210 rows in → 12 dropped (bad dates) → 161 paid → 157 after dedup
 - Outputs generated in one run: weekly_summary + top_products + Excel report + quarantine + data quality report
